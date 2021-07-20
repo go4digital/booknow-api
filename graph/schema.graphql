@@ -1,0 +1,22 @@
+type Lead {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String!
+}
+
+type Query {
+    leads: [Lead!]!
+}
+
+input LeadInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String!
+}
+
+type Mutation {
+    createLead(input: LeadInput): Lead
+}
