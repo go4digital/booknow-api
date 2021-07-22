@@ -2,7 +2,4 @@ module github.com/go4digital/booknow-api
 
 go 1.16
 
-require (
-	github.com/99designs/gqlgen v0.13.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.1.0 // indirect
-)
+require github.com/lib/pq v1.10.2

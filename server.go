@@ -1,14 +1,14 @@
 package main
 
 import (
+	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/go4digital/booknow-api/graph"
-	"github.com/go4digital/booknow-api/graph/generated"
+	"github.com/go4digital/booknow-api/models"
+	leads "github.com/go4digital/booknow-api/repo"
 )
 
 const defaultPort = "8080"
@@ -19,11 +19,40 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "Hello from Book Now Api !\n")
+	})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.HandleFunc("/leads", func(w http.ResponseWriter, r *http.Request) {
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+		switch r.Method {
+		case http.MethodGet:
+			w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			leads, err := leads.GetAllLeads()
+
+			if err != nil {
+				log.Fatalf("Unable to get all user. %v", err)
+			}
+
+			// send all the users as response
+			json.NewEncoder(w).Encode(leads)
+		case http.MethodPost:
+			var lead models.Lead
+
+			err := json.NewDecoder(r.Body).Decode(&lead)
+
+			if err != nil {
+				log.Fatalf("Unable to decode the request body.  %v", err)
+			}
+
+			leadId := leads.InsertLead(lead)
+
+			json.NewEncoder(w).Encode(leadId)
+		}
+
+	})
+	log.Printf("Server runing on localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }
