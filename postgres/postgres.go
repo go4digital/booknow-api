@@ -2,24 +2,28 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 2020
-	user     = "BookNowAdmin"
-	password = "BookNowAdmin@0987"
-	dbname   = "BookNow"
-)
-
 func Connect() *sql.DB {
+	// load .env file
+	err := godotenv.Load(".env")
 
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 
-	db, err := sql.Open("postgres", psqlconn)
+	connStr := os.Getenv("CONNSTR")
+
+	if connStr == "" {
+		log.Fatalf("Error: Empty Connection String !")
+	}
+
+	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
 		panic(err)

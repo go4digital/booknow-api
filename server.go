@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/go4digital/booknow-api/models"
 	leads "github.com/go4digital/booknow-api/repo"
@@ -29,6 +31,7 @@ func main() {
 		case http.MethodGet:
 			w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 			w.Header().Set("Access-Control-Allow-Origin", "*")
+
 			leads, err := leads.GetAllLeads()
 
 			if err != nil {
@@ -49,6 +52,39 @@ func main() {
 			leadId := leads.InsertLead(lead)
 
 			json.NewEncoder(w).Encode(leadId)
+
+		case http.MethodPut:
+			var lead models.Lead
+
+			err := json.NewDecoder(r.Body).Decode(&lead)
+
+			if err != nil {
+				log.Fatalf("Unable to decode the request body.  %v", err)
+			}
+
+			if lead.ID == 0 {
+				log.Fatalf("Invalid lead ID ! %v", lead.ID)
+			}
+
+			rowsAffected := leads.UpdateLead(lead)
+
+			json.NewEncoder(w).Encode(rowsAffected)
+		case http.MethodDelete:
+			query := r.URL.Query()
+
+			id := query.Get("id")
+
+			leadId, err := strconv.ParseInt(id, 10, 64)
+
+			if err != nil {
+				log.Printf("Invalid lead ID ! %v", leadId)
+				json.NewEncoder(w).Encode(fmt.Sprintf("Invalid lead ID ! %v", leadId))
+				return
+			}
+
+			rowsAffected := leads.DeleteLead(leadId)
+
+			json.NewEncoder(w).Encode(rowsAffected)
 		}
 
 	})

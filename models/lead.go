@@ -6,5 +6,5 @@ type Lead struct {
 	LastName  string `json:"lastname"`
 	Email     string `json:"email"`
 	Phone     string `json:"phone"`
-	Comments  string `json:"comments"`
+	Query     string `json:"query"`
 }
