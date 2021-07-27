@@ -2,28 +2,21 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"os"
 
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/go4digital/booknow-api/graph"
-	"github.com/go4digital/booknow-api/graph/generated"
+	"github.com/gin-gonic/gin"
+	"github.com/go4digital/booknow-api/db"
+	"github.com/go4digital/booknow-api/routes"
 )
 
-const defaultPort = "8080"
+const port = "8080"
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
+	db.Connect()
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	route := gin.Default()
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	routes.Routes(route)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(route.Run(":" + port))
 }
