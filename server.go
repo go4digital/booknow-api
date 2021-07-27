@@ -9,8 +9,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/go4digital/booknow-api/models"
-	leads "github.com/go4digital/booknow-api/repo"
+	leads "github.com/go4digital/booknow-api/dao"
+	"github.com/go4digital/booknow-api/postgres"
 )
 
 const defaultPort = "8080"
@@ -20,6 +20,8 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+
+	var db = postgres.Connect()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "Hello from Book Now Api !\n")
@@ -32,7 +34,7 @@ func main() {
 			w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 
-			leads, err := leads.GetAllLeads()
+			leads, err := leads.GetAllLeads(db)
 
 			if err != nil {
 				log.Fatalf("Unable to get all user. %v", err)
@@ -41,7 +43,7 @@ func main() {
 			// send all the users as response
 			json.NewEncoder(w).Encode(leads)
 		case http.MethodPost:
-			var lead models.Lead
+			var lead leads.Lead
 
 			err := json.NewDecoder(r.Body).Decode(&lead)
 
@@ -49,12 +51,12 @@ func main() {
 				log.Fatalf("Unable to decode the request body.  %v", err)
 			}
 
-			leadId := leads.InsertLead(lead)
+			leadId := lead.InsertLead(db)
 
 			json.NewEncoder(w).Encode(leadId)
 
 		case http.MethodPut:
-			var lead models.Lead
+			var lead leads.Lead
 
 			err := json.NewDecoder(r.Body).Decode(&lead)
 
@@ -66,7 +68,7 @@ func main() {
 				log.Fatalf("Invalid lead ID ! %v", lead.ID)
 			}
 
-			rowsAffected := leads.UpdateLead(lead)
+			rowsAffected := lead.UpdateLead(db)
 
 			json.NewEncoder(w).Encode(rowsAffected)
 		case http.MethodDelete:
@@ -81,8 +83,8 @@ func main() {
 				json.NewEncoder(w).Encode(fmt.Sprintf("Invalid lead ID ! %v", leadId))
 				return
 			}
-
-			rowsAffected := leads.DeleteLead(leadId)
+			lead := leads.Lead{ID: leadId}
+			rowsAffected := lead.DeleteLead(db)
 
 			json.NewEncoder(w).Encode(rowsAffected)
 		}
@@ -90,5 +92,7 @@ func main() {
 	})
 	log.Printf("Server runing on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	defer db.Close()
 
 }
