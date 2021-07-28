@@ -4,15 +4,12 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go4digital/booknow-api/db"
 	"github.com/go4digital/booknow-api/routes"
 )
 
 const port = "8080"
 
 func main() {
-	db.Connect()
-
 	route := gin.Default()
 
 	routes.Routes(route)

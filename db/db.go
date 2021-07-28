@@ -5,16 +5,26 @@ import (
 	"os"
 
 	"github.com/go-pg/pg/v10"
-	"github.com/go4digital/booknow-api/controllers"
+	"github.com/joho/godotenv"
 )
 
 // Connecting to db
 func Connect() *pg.DB {
-	opts := &pg.Options{
-		User:     "BookNowAdmin",
-		Password: "BookNowAdmin@0987",
-		Addr:     "localhost:2020",
-		Database: "BookNow",
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	connStr := os.Getenv("CONNSTR")
+
+	if connStr == "" {
+		log.Fatalf("Error: Empty Connection String !")
+	}
+	opts, err := pg.ParseURL(connStr)
+	if err != nil {
+		log.Fatalf("Error: Parsing Connection String !")
 	}
 	var db *pg.DB = pg.Connect(opts)
 	if db == nil {
@@ -22,7 +32,5 @@ func Connect() *pg.DB {
 		os.Exit(100)
 	}
 	log.Printf("Connected to db")
-	controllers.CreateLeadTable(db)
-	controllers.InitiateDB(db)
 	return db
 }

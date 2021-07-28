@@ -5,9 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	controllers "github.com/go4digital/booknow-api/controllers"
+	"github.com/go4digital/booknow-api/db"
 )
 
 func Routes(router *gin.Engine) {
+	db := db.Connect()
+	controllers.InitializeDB(db)
 	router.GET("/", welcome)
 	router.GET("/leads", controllers.GetAllLeads)
 	router.POST("/leads", controllers.CreateLead)
