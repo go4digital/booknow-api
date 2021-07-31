@@ -33,9 +33,9 @@ APIs for booking management system
 
    > **Database Connection String mentioned in project .env file, please details if you have defferent config**
 
-   > Update Database name
-   > Update Port (default postgres port is 5432)
-   > Update Username and password
+   1. Update Database name
+   2. Update Port (default postgres port is 5432)
+   3. Update Username and password
 
    - DataBase Name:- **BookNow**
    - Table Name:- **Leads**
