@@ -17,7 +17,7 @@ func Connect() *sql.DB {
 		log.Fatalf("Error loading .env file")
 	}
 
-	connStr := os.Getenv("CONNSTR")
+	connStr := os.Getenv("CONNECTION_STR")
 
 	if connStr == "" {
 		log.Fatalf("Error: Empty Connection String !")

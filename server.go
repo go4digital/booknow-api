@@ -6,54 +6,76 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	leads "github.com/go4digital/booknow-api/dao"
 	"github.com/go4digital/booknow-api/postgres"
+	"github.com/go4digital/booknow-api/utils"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
+	utils.InitLogger()
+	port := utils.Getenv("APPLICATION_PORT")
 
 	var db = postgres.Connect()
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "Hello from Book Now Api !\n")
+	http.HandleFunc("/", func(response http.ResponseWriter, r *http.Request) {
+		io.WriteString(response, "Hello from Book Now Api !\n")
 	})
 
-	http.HandleFunc("/leads", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/leads", func(response http.ResponseWriter, r *http.Request) {
 
 		switch r.Method {
 		case http.MethodGet:
-			w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			leadId := r.URL.Query().Get("id")
+			if leadId != "" {
+				leadId, err := strconv.ParseInt(leadId, 10, 64)
 
-			leads, err := leads.GetAllLeads(db)
+				if err != nil {
+					msg := fmt.Sprintf("Invalid lead ID ! %v", leadId)
+					log.Println(msg)
+					response.WriteHeader(http.StatusBadRequest)
+					json.NewEncoder(response).Encode(msg)
+				} else {
+					lead, err := leads.GetLead(db, leadId)
+					if err != nil {
+						msg := fmt.Sprintf("No Data found for Id: %v", leadId)
+						log.Println(msg)
+						response.WriteHeader(http.StatusNotFound)
+						json.NewEncoder(response).Encode(msg)
+					} else {
+						json.NewEncoder(response).Encode(lead)
+					}
+				}
 
-			if err != nil {
-				log.Fatalf("Unable to get all user. %v", err)
+			} else {
+				leads, err := leads.GetAllLeads(db)
+				log.Println(err)
+				json.NewEncoder(response).Encode(leads)
 			}
 
-			// send all the users as response
-			json.NewEncoder(w).Encode(leads)
 		case http.MethodPost:
 			var lead leads.Lead
 
 			err := json.NewDecoder(r.Body).Decode(&lead)
 
 			if err != nil {
-				log.Fatalf("Unable to decode the request body.  %v", err)
+				msg := "Bad request: Invalid request body."
+				log.Println(msg)
+				response.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(response).Encode(msg)
+			} else {
+				leadId, err := lead.InsertLead(db)
+				if err != nil {
+					msg := fmt.Sprintf("Unable to create lead. %v", err)
+					log.Println(msg)
+					response.WriteHeader(http.StatusExpectationFailed)
+					json.NewEncoder(response).Encode(msg)
+				} else {
+					msg := fmt.Sprintf("Lead created Id: %v", leadId)
+					json.NewEncoder(response).Encode(msg)
+				}
 			}
-
-			leadId := lead.InsertLead(db)
-
-			json.NewEncoder(w).Encode(leadId)
 
 		case http.MethodPut:
 			var lead leads.Lead
@@ -61,16 +83,29 @@ func main() {
 			err := json.NewDecoder(r.Body).Decode(&lead)
 
 			if err != nil {
-				log.Fatalf("Unable to decode the request body.  %v", err)
+				msg := "Bad request: Invalid request body."
+				log.Println(msg)
+				response.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(response).Encode(msg)
+			} else {
+				if lead.ID == 0 {
+					msg := fmt.Sprintf("Invalid lead ID ! %v", lead.ID)
+					log.Println(msg)
+					response.WriteHeader(http.StatusBadRequest)
+					json.NewEncoder(response).Encode(msg)
+				} else {
+					rowsAffected, err := lead.UpdateLead(db)
+					if err != nil {
+						msg := fmt.Sprintf("Unable to update lead. %v", err)
+						log.Println(msg)
+						response.WriteHeader(http.StatusExpectationFailed)
+						json.NewEncoder(response).Encode(msg)
+					} else {
+						json.NewEncoder(response).Encode(rowsAffected)
+					}
+				}
 			}
 
-			if lead.ID == 0 {
-				log.Fatalf("Invalid lead ID ! %v", lead.ID)
-			}
-
-			rowsAffected := lead.UpdateLead(db)
-
-			json.NewEncoder(w).Encode(rowsAffected)
 		case http.MethodDelete:
 			query := r.URL.Query()
 
@@ -80,18 +115,30 @@ func main() {
 
 			if err != nil {
 				log.Printf("Invalid lead ID ! %v", leadId)
-				json.NewEncoder(w).Encode(fmt.Sprintf("Invalid lead ID ! %v", leadId))
+				json.NewEncoder(response).Encode(fmt.Sprintf("Invalid lead ID ! %v", leadId))
 				return
+			} else {
+				rowsAffected, err := leads.DeleteLead(db, leadId)
+				if err != nil {
+					msg := fmt.Sprintf("Unable to delete lead. %v", err)
+					log.Println(msg)
+					response.WriteHeader(http.StatusExpectationFailed)
+					json.NewEncoder(response).Encode(msg)
+				} else {
+					msg := ""
+					if rowsAffected == 0 {
+						msg = fmt.Sprintf("Lead not found Id: %v", leadId)
+					} else {
+						msg = fmt.Sprintf("Lead deleted Id: %v", leadId)
+					}
+					json.NewEncoder(response).Encode(msg)
+				}
 			}
-			lead := leads.Lead{ID: leadId}
-			rowsAffected := lead.DeleteLead(db)
-
-			json.NewEncoder(w).Encode(rowsAffected)
 		}
 
 	})
-	log.Printf("Server runing on localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf(fmt.Sprintf("Server running on localhost:%s", port))
+	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 
 	defer db.Close()
 

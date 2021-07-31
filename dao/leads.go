@@ -6,50 +6,49 @@ import (
 )
 
 type Lead struct {
-	ID        int64  `json:"id"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
-	Email     string `json:"email"`
-	Phone     string `json:"phone"`
-	Query     string `json:"query"`
+	ID          int64  `json:"id"`
+	FirstName   string `json:"firstname"`
+	LastName    string `json:"lastname"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	Description string `json:"description"`
 }
 
-func (l *Lead) InsertLead(db *sql.DB) int64 {
+const (
+	SELECT   = `SELECT id, firstname, lastname, email, phone, description FROM leads`
+	SELECTBY = `SELECT id, firstname, lastname, email, phone, description FROM leads WHERE id=$1`
+	INSERT   = `insert into "leads"("firstname", "lastname", "email", "phone", "description") values($1, $2, $3, $4, $5) RETURNING id`
+	UPDATE   = `UPDATE leads SET firstname=$2, lastname=$3, email=$4, phone=$5, description=$6 WHERE id=$1`
+	DELETE   = `DELETE FROM leads WHERE id=$1`
+)
 
-	sqlStatement := `insert into "leads"("firstname", "lastname", "email", "phone", "query") 
-	values($1, $2, $3, $4, $5) RETURNING id`
+func (l *Lead) InsertLead(db *sql.DB) (int64, error) {
 
 	var id int64
 
-	err := db.QueryRow(sqlStatement, l.FirstName, l.LastName, l.Email, l.Phone, l.Query).Scan(&id)
+	err := db.QueryRow(INSERT, l.FirstName, l.LastName, l.Email, l.Phone, l.Description).Scan(&id)
 
 	checkError(err)
 
-	return id
+	return id, err
 }
 
-func (l *Lead) UpdateLead(db *sql.DB) int64 {
+func (l *Lead) UpdateLead(db *sql.DB) (int64, error) {
 
-	sqlStatement := `UPDATE leads SET firstname=$2, lastname=$3, email=$4, phone=$5, query=$6 WHERE id=$1`
-
-	res, err := db.Exec(sqlStatement, l.ID, l.FirstName, l.LastName, l.Email, l.Phone, l.Query)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
+	res, err := db.Exec(UPDATE, l.ID, l.FirstName, l.LastName, l.Email, l.Phone, l.Description)
 
 	rowsAffected, err := res.RowsAffected()
 
-	return rowsAffected
+	checkError(err)
+
+	return rowsAffected, err
 }
 
 func GetAllLeads(db *sql.DB) ([]Lead, error) {
 
 	var leads []Lead
 
-	sqlStatement := `SELECT * FROM leads`
-
-	rows, err := db.Query(sqlStatement)
+	rows, err := db.Query(SELECT)
 
 	checkError(err)
 
@@ -61,11 +60,9 @@ func GetAllLeads(db *sql.DB) ([]Lead, error) {
 	for rows.Next() {
 		var lead Lead
 
-		err = rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Query)
+		err = rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
 
-		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
-		}
+		checkError(err)
 
 		leads = append(leads, lead)
 	}
@@ -74,34 +71,30 @@ func GetAllLeads(db *sql.DB) ([]Lead, error) {
 
 }
 
-func (l *Lead) GetLead(db *sql.DB) error {
+func GetLead(db *sql.DB, leadId int64) (Lead, error) {
 
 	var lead Lead
 
-	sqlStatement := `SELECT * FROM leads WHERE id=$1`
+	rows := db.QueryRow(SELECTBY, leadId)
 
-	rows := db.QueryRow(sqlStatement, l.ID)
+	err := rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
 
-	return rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Query)
+	return lead, err
 }
 
-func (l *Lead) DeleteLead(db *sql.DB) int64 {
+func DeleteLead(db *sql.DB, leadId int64) (int64, error) {
 
-	sqlStatement := `DELETE FROM leads WHERE id=$1`
-
-	res, err := db.Exec(sqlStatement, l.ID)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
+	res, err := db.Exec(DELETE, leadId)
 
 	rowsAffected, err := res.RowsAffected()
 
-	return rowsAffected
+	checkError(err)
+
+	return rowsAffected, err
 }
 
 func checkError(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
