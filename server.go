@@ -95,13 +95,15 @@ func main() {
 					json.NewEncoder(response).Encode(msg)
 				} else {
 					rowsAffected, err := lead.UpdateLead(db)
+					msg := ""
 					if err != nil {
-						msg := fmt.Sprintf("Unable to update lead. %v", err)
+						msg = fmt.Sprintf("Unable to update lead. %v", err)
 						log.Println(msg)
 						response.WriteHeader(http.StatusExpectationFailed)
 						json.NewEncoder(response).Encode(msg)
 					} else {
-						json.NewEncoder(response).Encode(rowsAffected)
+						msg = fmt.Sprintf("%v Lead Updated", rowsAffected)
+						json.NewEncoder(response).Encode(msg)
 					}
 				}
 			}
