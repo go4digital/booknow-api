@@ -15,11 +15,11 @@ type Lead struct {
 }
 
 const (
-	SELECT   = `SELECT id, firstname, lastname, email, phone, description FROM leads`
-	SELECTBY = `SELECT id, firstname, lastname, email, phone, description FROM leads WHERE id=$1`
-	INSERT   = `insert into "leads"("firstname", "lastname", "email", "phone", "description") values($1, $2, $3, $4, $5) RETURNING id`
-	UPDATE   = `UPDATE leads SET firstname=$2, lastname=$3, email=$4, phone=$5, description=$6 WHERE id=$1`
-	DELETE   = `DELETE FROM leads WHERE id=$1`
+	LEADS_ALL = `SELECT id, firstname, lastname, email, phone, description FROM leads`
+	LEADS     = `SELECT id, firstname, lastname, email, phone, description FROM leads WHERE id=$1`
+	INSERT    = `insert into "leads"("firstname", "lastname", "email", "phone", "description") values($1, $2, $3, $4, $5) RETURNING id`
+	UPDATE    = `UPDATE leads SET firstname=$2, lastname=$3, email=$4, phone=$5, description=$6 WHERE id=$1`
+	DELETE    = `DELETE FROM leads WHERE id=$1`
 )
 
 func (l *Lead) InsertLead(db *sql.DB) (int64, error) {
@@ -37,6 +37,8 @@ func (l *Lead) UpdateLead(db *sql.DB) (int64, error) {
 
 	res, err := db.Exec(UPDATE, l.ID, l.FirstName, l.LastName, l.Email, l.Phone, l.Description)
 
+	checkError(err)
+
 	rowsAffected, err := res.RowsAffected()
 
 	checkError(err)
@@ -48,7 +50,7 @@ func GetAllLeads(db *sql.DB) ([]Lead, error) {
 
 	var leads []Lead
 
-	rows, err := db.Query(SELECT)
+	rows, err := db.Query(LEADS_ALL)
 
 	checkError(err)
 
@@ -75,7 +77,7 @@ func GetLead(db *sql.DB, leadId int64) (Lead, error) {
 
 	var lead Lead
 
-	rows := db.QueryRow(SELECTBY, leadId)
+	rows := db.QueryRow(LEADS, leadId)
 
 	err := rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
 
@@ -85,6 +87,8 @@ func GetLead(db *sql.DB, leadId int64) (Lead, error) {
 func DeleteLead(db *sql.DB, leadId int64) (int64, error) {
 
 	res, err := db.Exec(DELETE, leadId)
+
+	checkError(err)
 
 	rowsAffected, err := res.RowsAffected()
 

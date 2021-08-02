@@ -10,12 +10,12 @@ import (
 )
 
 var l = &Lead{
-	ID:        1,
-	FirstName: "Test",
-	LastName:  "User",
-	Email:     "test.user@example.com",
-	Phone:     "856974213",
-	Query:     "I need cleaning service",
+	ID:          1,
+	FirstName:   "Test",
+	LastName:    "User",
+	Email:       "test.user@example.com",
+	Phone:       "856974213",
+	Description: "I need cleaning service",
 }
 
 func NewMock() (*sql.DB, sqlmock.Sqlmock) {
@@ -37,9 +37,9 @@ func TestInsertLead(t *testing.T) {
 	values($1, $2, $3, $4, $5) RETURNING id`
 
 	prep := mock.ExpectPrepare(query)
-	prep.ExpectExec().WithArgs(l.FirstName, l.LastName, l.Email, l.Phone, l.Query).WillReturnResult(sqlmock.NewResult(0, 1))
+	prep.ExpectExec().WithArgs(l.FirstName, l.LastName, l.Email, l.Phone, l.Description).WillReturnResult(sqlmock.NewResult(0, 1))
 
-	id := l.InsertLead(db)
+	id, _ := l.InsertLead(db)
 	assert.Equal(t, id, 1)
 }
 
@@ -50,7 +50,7 @@ func TestGetLead(t *testing.T) {
 	query := "SELECT * FROM leads"
 
 	rows := mock.NewRows([]string{"id", "firstname", "lastname", "email", "phone", "query"}).
-		AddRow(l.ID, l.FirstName, l.LastName, l.Email, l.Phone, l.Query)
+		AddRow(l.ID, l.FirstName, l.LastName, l.Email, l.Phone, l.Description)
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 

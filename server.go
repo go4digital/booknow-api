@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	leads "github.com/go4digital/booknow-api/dao"
-	"github.com/go4digital/booknow-api/postgres"
+	"github.com/go4digital/booknow-api/database"
 	"github.com/go4digital/booknow-api/utils"
 )
 
@@ -17,17 +17,17 @@ func main() {
 	utils.InitLogger()
 	port := utils.Getenv("APPLICATION_PORT")
 
-	var db = postgres.Connect()
+	var db = database.Connect()
 
-	http.HandleFunc("/", func(response http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		io.WriteString(response, "Hello from Book Now Api !\n")
 	})
 
-	http.HandleFunc("/leads", func(response http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/leads", func(response http.ResponseWriter, request *http.Request) {
 
-		switch r.Method {
+		switch request.Method {
 		case http.MethodGet:
-			leadId := r.URL.Query().Get("id")
+			leadId := request.URL.Query().Get("id")
 			if leadId != "" {
 				leadId, err := strconv.ParseInt(leadId, 10, 64)
 
@@ -57,7 +57,7 @@ func main() {
 		case http.MethodPost:
 			var lead leads.Lead
 
-			err := json.NewDecoder(r.Body).Decode(&lead)
+			err := json.NewDecoder(request.Body).Decode(&lead)
 
 			if err != nil {
 				msg := "Bad request: Invalid request body."
@@ -80,7 +80,7 @@ func main() {
 		case http.MethodPut:
 			var lead leads.Lead
 
-			err := json.NewDecoder(r.Body).Decode(&lead)
+			err := json.NewDecoder(request.Body).Decode(&lead)
 
 			if err != nil {
 				msg := "Bad request: Invalid request body."
@@ -107,7 +107,7 @@ func main() {
 			}
 
 		case http.MethodDelete:
-			query := r.URL.Query()
+			query := request.URL.Query()
 
 			id := query.Get("id")
 
@@ -137,7 +137,7 @@ func main() {
 		}
 
 	})
-	log.Printf(fmt.Sprintf("Server running on localhost:%s", port))
+	log.Printf("Server running on localhost:%s", port)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 
 	defer db.Close()
