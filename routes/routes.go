@@ -5,11 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	controllers "github.com/go4digital/booknow-api/controllers"
-	"github.com/go4digital/booknow-api/db"
+	"github.com/go4digital/booknow-api/database"
 )
 
 func Routes(router *gin.Engine) {
-	db := db.Connect()
+	db := database.Connect()
 	controllers.InitializeDB(db)
 	router.GET("/", welcome)
 	router.GET("/leads", controllers.GetAllLeads)
@@ -33,5 +33,4 @@ func notFound(c *gin.Context) {
 		"status":  404,
 		"message": "Route Not Found",
 	})
-	return
 }

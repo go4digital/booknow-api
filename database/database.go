@@ -1,36 +1,30 @@
-package db
+package database
 
 import (
 	"log"
 	"os"
 
 	"github.com/go-pg/pg/v10"
-	"github.com/joho/godotenv"
+	"github.com/go4digital/booknow-api/utils"
 )
 
 // Connecting to db
 func Connect() *pg.DB {
-	// load .env file
-	err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	connectionString := utils.Getenv("CONNECTION_STRING")
 
-	connStr := os.Getenv("CONNSTR")
-
-	if connStr == "" {
+	if connectionString == "" {
 		log.Fatalf("Error: Empty Connection String !")
 	}
-	opts, err := pg.ParseURL(connStr)
+	opts, err := pg.ParseURL(connectionString)
 	if err != nil {
 		log.Fatalf("Error: Parsing Connection String !")
 	}
 	var db *pg.DB = pg.Connect(opts)
 	if db == nil {
-		log.Printf("Failed to connect")
+		log.Println("Failed to connect")
 		os.Exit(100)
 	}
-	log.Printf("Connected to db")
+	log.Println("Connected to database")
 	return db
 }

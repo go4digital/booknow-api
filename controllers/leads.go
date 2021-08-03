@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,15 +13,15 @@ import (
 )
 
 type Lead struct {
-	leads     struct{}  `pg:"leads"`
-	ID        int       `json:"id" pg:"id,pk"`
-	FirstName string    `json:"firstname"`
-	LastName  string    `json:"lastname"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	Query     string    `json:"query"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	leads       struct{}  `pg:"leads"`
+	ID          int       `sql:"id" pg:"id,pk"`
+	FirstName   string    `sql:"first_name"`
+	LastName    string    `sql:"last_name"`
+	Email       string    `sql:"email"`
+	Phone       string    `sql:"phone"`
+	Description string    `sql:"description"`
+	CreatedAt   time.Time `sql:"created_at"`
+	UpdatedAt   time.Time `sql:"updated_at"`
 }
 
 // Create Lead Table
@@ -33,7 +34,7 @@ func CreateLeadTable(db *pg.DB) error {
 		log.Printf("Error while creating lead table, Reason: %v\n", createError)
 		return createError
 	}
-	log.Printf("Lead table created")
+	log.Println("Lead table created")
 	return nil
 }
 
@@ -55,15 +56,14 @@ func GetAllLeads(context *gin.Context) {
 			"status":  http.StatusInternalServerError,
 			"message": "Something went wrong",
 		})
-		return
+	} else {
+		context.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": "All Leads",
+			"data":    leads,
+		})
 	}
 
-	context.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "All Leads",
-		"data":    leads,
-	})
-	return
 }
 
 func CreateLead(context *gin.Context) {
@@ -78,21 +78,21 @@ func CreateLead(context *gin.Context) {
 			"status":  http.StatusInternalServerError,
 			"message": "Something went wrong",
 		})
-		return
+	} else {
+		context.JSON(http.StatusCreated, gin.H{
+			"status":  http.StatusCreated,
+			"message": "Lead created Successfully",
+		})
 	}
-
-	context.JSON(http.StatusCreated, gin.H{
-		"status":  http.StatusCreated,
-		"message": "Lead created Successfully",
-	})
-	return
 }
 
 func GetLead(context *gin.Context) {
-	leadId, err := strconv.Atoi(context.Param("leadId"))
-
+	leadId := validateLeadId(context)
+	if leadId == 0 {
+		return
+	}
 	lead := &Lead{ID: leadId}
-	err = dbConnect.Model(lead).WherePK().Select()
+	err := dbConnect.Model(lead).WherePK().Select()
 
 	if err != nil {
 		log.Printf("Error while getting lead Reason: %v\n", err)
@@ -100,59 +100,70 @@ func GetLead(context *gin.Context) {
 			"status":  http.StatusNotFound,
 			"message": "Lead not found",
 		})
-		return
+	} else {
+		context.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": "Lead",
+			"data":    lead,
+		})
 	}
-
-	context.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Lead",
-		"data":    lead,
-	})
-	return
 }
 
 func UpdateLead(context *gin.Context) {
-	leadId, err := strconv.Atoi(context.Param("leadId"))
+	leadId := validateLeadId(context)
+	if leadId == 0 {
+		return
+	}
 	lead := &Lead{
 		ID: leadId,
 	}
 	lead.UpdatedAt = time.Now()
 	context.BindJSON(&lead)
 
-	_, err = dbConnect.Model(lead).WherePK().Update()
+	_, err := dbConnect.Model(lead).WherePK().Update()
 	if err != nil {
 		log.Printf("Error, Reason: %v\n", err)
 		context.JSON(http.StatusInternalServerError, gin.H{
 			"status":  500,
 			"message": "Something went wrong",
 		})
-		return
+	} else {
+		context.JSON(http.StatusOK, gin.H{
+			"status":  200,
+			"message": "Lead Upated Successfully",
+		})
 	}
-
-	context.JSON(http.StatusOK, gin.H{
-		"status":  200,
-		"message": "Lead Upated Successfully",
-	})
-	return
 }
 
 func DeleteLead(context *gin.Context) {
-	leadId, err := strconv.Atoi(context.Param("leadId"))
+	leadId := validateLeadId(context)
 	lead := &Lead{ID: leadId}
 
-	_, err = dbConnect.Model(lead).WherePK().Delete()
+	_, err := dbConnect.Model(lead).WherePK().Delete()
 	if err != nil {
 		log.Printf("Error while deleting a lead, Reason: %v\n", err)
 		context.JSON(http.StatusInternalServerError, gin.H{
 			"status":  http.StatusInternalServerError,
 			"message": "Something went wrong",
 		})
-		return
+	} else {
+		context.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": "Lead deleted successfully",
+		})
 	}
+}
 
-	context.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Lead deleted successfully",
-	})
-	return
+func validateLeadId(context *gin.Context) int {
+	leadId, err := strconv.Atoi(context.Param("leadId"))
+	if err != nil {
+		msg := fmt.Sprintf("Invalid leadId: %v\n", err)
+		log.Println(msg)
+		context.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": msg,
+		})
+		return leadId
+	}
+	return leadId
 }
