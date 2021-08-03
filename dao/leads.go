@@ -22,20 +22,20 @@ const (
 	DELETE    = `DELETE FROM leads WHERE id=$1`
 )
 
-func (l *Lead) InsertLead(db *sql.DB) (int64, error) {
+func (lead *Lead) InsertLead(db *sql.DB) (int64, error) {
 
 	var id int64
 
-	err := db.QueryRow(INSERT, l.FirstName, l.LastName, l.Email, l.Phone, l.Description).Scan(&id)
+	err := db.QueryRow(INSERT, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description).Scan(&id)
 
 	checkError(err)
 
 	return id, err
 }
 
-func (l *Lead) UpdateLead(db *sql.DB) (int64, error) {
+func (lead *Lead) UpdateLead(db *sql.DB) (int64, error) {
 
-	res, err := db.Exec(UPDATE, l.ID, l.FirstName, l.LastName, l.Email, l.Phone, l.Description)
+	res, err := db.Exec(UPDATE, lead.ID, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description)
 
 	checkError(err)
 
@@ -57,20 +57,15 @@ func GetAllLeads(db *sql.DB) ([]Lead, error) {
 	// close the statement
 	defer rows.Close()
 
-	//itrate over the rows
-
+	var lead Lead
+	//iterate over the rows
 	for rows.Next() {
-		var lead Lead
-
 		err = rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
-
 		checkError(err)
-
 		leads = append(leads, lead)
 	}
 
 	return leads, err
-
 }
 
 func GetLead(db *sql.DB, leadId int64) (Lead, error) {

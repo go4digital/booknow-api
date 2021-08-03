@@ -18,7 +18,7 @@ func Connect() *sql.DB {
 	}
 
 	connectionString := os.Getenv("CONNECTION_STR")
-	databaseName := os.Getenv("DATABASE_NAME")
+	databaseName := os.Getenv("DRIVER_NAME")
 
 	if connectionString == "" {
 		log.Fatalf("Error: Empty Connection String !")

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var l = &Lead{
+var lead = &Lead{
 	ID:          1,
 	FirstName:   "Test",
 	LastName:    "User",
@@ -33,13 +33,13 @@ func TestInsertLead(t *testing.T) {
 		db.Close()
 	}()
 
-	query := `insert into "leads"("firstname", "lastname", "email", "phone", "query")
+	query := `insert into "leads"("firstname", "lastname", "email", "phone", "description")
 	values($1, $2, $3, $4, $5) RETURNING id`
 
 	prep := mock.ExpectPrepare(query)
-	prep.ExpectExec().WithArgs(l.FirstName, l.LastName, l.Email, l.Phone, l.Description).WillReturnResult(sqlmock.NewResult(0, 1))
+	prep.ExpectExec().WithArgs(lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description).WillReturnResult(sqlmock.NewResult(0, 1))
 
-	id, _ := l.InsertLead(db)
+	id, _ := lead.InsertLead(db)
 	assert.Equal(t, id, 1)
 }
 
@@ -47,10 +47,10 @@ func TestGetLead(t *testing.T) {
 	db, mock := NewMock()
 	defer db.Close()
 
-	query := "SELECT * FROM leads"
+	query := "SELECT id, firstname, lastname, email, phone, description FROM leads"
 
-	rows := mock.NewRows([]string{"id", "firstname", "lastname", "email", "phone", "query"}).
-		AddRow(l.ID, l.FirstName, l.LastName, l.Email, l.Phone, l.Description)
+	rows := mock.NewRows([]string{"id", "firstname", "lastname", "email", "phone", "description"}).
+		AddRow(lead.ID, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description)
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 

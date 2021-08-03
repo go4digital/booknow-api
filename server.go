@@ -7,11 +7,45 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"database/sql"
 
 	leads "github.com/go4digital/booknow-api/dao"
 	"github.com/go4digital/booknow-api/database"
 	"github.com/go4digital/booknow-api/utils"
 )
+
+const (
+    ID = "id"
+)
+
+func getLeads(request *http.Request, response http.ResponseWriter, db *sql.DB) {
+    leadId := request.URL.Query().Get(ID)
+    if leadId != "" {
+        leadId, err := strconv.ParseInt(leadId, 10, 64)
+
+        if err != nil {
+            msg := fmt.Sprintf("Invalid lead ID ! %v", leadId)
+            log.Println(msg)
+            response.WriteHeader(http.StatusBadRequest)
+            json.NewEncoder(response).Encode(msg)
+        } else {
+            lead, err := leads.GetLead(db, leadId)
+            if err != nil {
+                msg := fmt.Sprintf("No Data found for Id: %v", leadId)
+                log.Println(msg)
+                response.WriteHeader(http.StatusNotFound)
+                json.NewEncoder(response).Encode(msg)
+            } else {
+                json.NewEncoder(response).Encode(lead)
+            }
+        }
+
+    } else {
+        leads, err := leads.GetAllLeads(db)
+        log.Println(err)
+        json.NewEncoder(response).Encode(leads)
+    }
+}
 
 func main() {
 	utils.InitLogger()
@@ -27,33 +61,7 @@ func main() {
 
 		switch request.Method {
 		case http.MethodGet:
-			leadId := request.URL.Query().Get("id")
-			if leadId != "" {
-				leadId, err := strconv.ParseInt(leadId, 10, 64)
-
-				if err != nil {
-					msg := fmt.Sprintf("Invalid lead ID ! %v", leadId)
-					log.Println(msg)
-					response.WriteHeader(http.StatusBadRequest)
-					json.NewEncoder(response).Encode(msg)
-				} else {
-					lead, err := leads.GetLead(db, leadId)
-					if err != nil {
-						msg := fmt.Sprintf("No Data found for Id: %v", leadId)
-						log.Println(msg)
-						response.WriteHeader(http.StatusNotFound)
-						json.NewEncoder(response).Encode(msg)
-					} else {
-						json.NewEncoder(response).Encode(lead)
-					}
-				}
-
-			} else {
-				leads, err := leads.GetAllLeads(db)
-				log.Println(err)
-				json.NewEncoder(response).Encode(leads)
-			}
-
+			getLeads(request, response, db);
 		case http.MethodPost:
 			var lead leads.Lead
 
@@ -111,7 +119,7 @@ func main() {
 		case http.MethodDelete:
 			query := request.URL.Query()
 
-			id := query.Get("id")
+			id := query.Get(ID)
 
 			leadId, err := strconv.ParseInt(id, 10, 64)
 
