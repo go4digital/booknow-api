@@ -1,8 +1,12 @@
-package leads
+package dao
 
 import (
 	"database/sql"
 	"log"
+)
+
+var (
+	LeadsDao leadsInterface = &leadsDao{}
 )
 
 type Lead struct {
@@ -22,20 +26,36 @@ const (
 	DELETE    = `DELETE FROM leads WHERE id=$1`
 )
 
-func (lead *Lead) InsertLead(db *sql.DB) (int64, error) {
+type leadsInterface interface {
+	CreateLead(*Lead) (int64, error)
+	UpdateLead(*Lead) (int64, error)
+	GetAllLeads() (*[]Lead, error)
+	GetLead(int64) (*Lead, error)
+	DeleteLead(int64) (int64, error)
+}
+
+type leadsDao struct {
+	db *sql.DB
+}
+
+func NewLeadsDao(db *sql.DB) leadsInterface {
+	return &leadsDao{db: db}
+}
+
+func (leadsDao *leadsDao) CreateLead(lead *Lead) (int64, error) {
 
 	var id int64
 
-	err := db.QueryRow(INSERT, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description).Scan(&id)
+	err := leadsDao.db.QueryRow(INSERT, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description).Scan(&id)
 
 	checkError(err)
 
 	return id, err
 }
 
-func (lead *Lead) UpdateLead(db *sql.DB) (int64, error) {
+func (leadsDao *leadsDao) UpdateLead(lead *Lead) (int64, error) {
 
-	res, err := db.Exec(UPDATE, lead.ID, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description)
+	res, err := leadsDao.db.Exec(UPDATE, lead.ID, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description)
 
 	checkError(err)
 
@@ -46,11 +66,11 @@ func (lead *Lead) UpdateLead(db *sql.DB) (int64, error) {
 	return rowsAffected, err
 }
 
-func GetAllLeads(db *sql.DB) ([]Lead, error) {
+func (leadsDao *leadsDao) GetAllLeads() (*[]Lead, error) {
 
 	var leads []Lead
 
-	rows, err := db.Query(LEADS_ALL)
+	rows, err := leadsDao.db.Query(LEADS_ALL)
 
 	checkError(err)
 
@@ -65,23 +85,23 @@ func GetAllLeads(db *sql.DB) ([]Lead, error) {
 		leads = append(leads, lead)
 	}
 
-	return leads, err
+	return &leads, err
 }
 
-func GetLead(db *sql.DB, leadId int64) (Lead, error) {
+func (leadsDao *leadsDao) GetLead(leadId int64) (*Lead, error) {
 
 	var lead Lead
 
-	rows := db.QueryRow(LEADS, leadId)
+	rows := leadsDao.db.QueryRow(LEADS, leadId)
 
 	err := rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
 
-	return lead, err
+	return &lead, err
 }
 
-func DeleteLead(db *sql.DB, leadId int64) (int64, error) {
+func (leadsDao *leadsDao) DeleteLead(leadId int64) (int64, error) {
 
-	res, err := db.Exec(DELETE, leadId)
+	res, err := leadsDao.db.Exec(DELETE, leadId)
 
 	checkError(err)
 

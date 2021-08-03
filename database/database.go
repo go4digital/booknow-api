@@ -3,22 +3,15 @@ package database
 import (
 	"database/sql"
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/go4digital/booknow-api/utils"
 	_ "github.com/lib/pq"
 )
 
 func Connect() *sql.DB {
-	// load .env file
-	err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	connectionString := os.Getenv("CONNECTION_STR")
-	databaseName := os.Getenv("DRIVER_NAME")
+	connectionString := utils.Getenv("CONNECTION_STR")
+	databaseName := utils.Getenv("DRIVER_NAME")
 
 	if connectionString == "" {
 		log.Fatalf("Error: Empty Connection String !")

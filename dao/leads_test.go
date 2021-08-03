@@ -1,4 +1,4 @@
-package leads
+package dao
 
 import (
 	"database/sql"
