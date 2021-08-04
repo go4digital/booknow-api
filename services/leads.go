@@ -22,10 +22,10 @@ type leadServiceInterface interface {
 }
 
 var db = database.Connect()
-var leadDao = dao.NewLeadsDao(db)
+var leads = dao.NewLeads(db)
 
 func (leadService *leadService) CreateLead(lead *dao.Lead) (int64, error) {
-	leadId, err := leadDao.CreateLead(lead)
+	leadId, err := leads.CreateLead(lead)
 	if err != nil {
 		log.Println(err)
 	}
@@ -34,7 +34,7 @@ func (leadService *leadService) CreateLead(lead *dao.Lead) (int64, error) {
 }
 
 func (leadService *leadService) UpdateLead(lead *dao.Lead) (int64, error) {
-	rowsAffected, err := leadDao.UpdateLead(lead)
+	rowsAffected, err := leads.UpdateLead(lead)
 	if err != nil {
 		log.Println(err)
 	}
@@ -42,7 +42,7 @@ func (leadService *leadService) UpdateLead(lead *dao.Lead) (int64, error) {
 }
 
 func (leadService *leadService) GetAllLeads() (*[]dao.Lead, error) {
-	leads, err := leadDao.GetAllLeads()
+	leads, err := leads.GetAllLeads()
 	if err != nil {
 		log.Println(err)
 	}
@@ -50,7 +50,7 @@ func (leadService *leadService) GetAllLeads() (*[]dao.Lead, error) {
 }
 
 func (leadService *leadService) GetLead(leadId int64) (*dao.Lead, error) {
-	lead, err := leadDao.GetLead(leadId)
+	lead, err := leads.GetLead(leadId)
 	if err != nil {
 		log.Println(err)
 	}
@@ -58,7 +58,7 @@ func (leadService *leadService) GetLead(leadId int64) (*dao.Lead, error) {
 }
 
 func (leadService *leadService) DeleteLead(leadId int64) (int64, error) {
-	rowsAffected, err := leadDao.DeleteLead(leadId)
+	rowsAffected, err := leads.DeleteLead(leadId)
 	if err != nil {
 		log.Println(err)
 	}

@@ -8,11 +8,8 @@ import (
 	"strconv"
 
 	"github.com/go4digital/booknow-api/dao"
+	"github.com/go4digital/booknow-api/global"
 	"github.com/go4digital/booknow-api/services"
-)
-
-const (
-	ID = "id"
 )
 
 func GetAllLeads(request *http.Request, response http.ResponseWriter) {
@@ -28,7 +25,7 @@ func GetAllLeads(request *http.Request, response http.ResponseWriter) {
 }
 
 func GetLead(request *http.Request, response http.ResponseWriter) {
-	leadId := request.URL.Query().Get(ID)
+	leadId := request.URL.Query().Get(global.ID)
 	if leadId != "" {
 		leadId, err := strconv.ParseInt(leadId, 10, 64)
 
@@ -108,7 +105,7 @@ func UpdateLead(request *http.Request, response http.ResponseWriter) {
 func DeleteLead(request *http.Request, response http.ResponseWriter) {
 	query := request.URL.Query()
 
-	id := query.Get(ID)
+	id := query.Get(global.ID)
 
 	leadId, err := strconv.ParseInt(id, 10, 64)
 

@@ -4,20 +4,20 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/go4digital/booknow-api/utils"
+	"github.com/go4digital/booknow-api/global"
 	_ "github.com/lib/pq"
 )
 
 func Connect() *sql.DB {
 
-	connectionString := utils.Getenv("CONNECTION_STR")
-	databaseName := utils.Getenv("DRIVER_NAME")
+	connectionString := global.Getenv("CONNECTION_STR")
+	drivename := global.Getenv("DRIVER_NAME")
 
 	if connectionString == "" {
 		log.Fatalf("Error: Empty Connection String !")
 	}
 
-	db, err := sql.Open(databaseName, connectionString)
+	db, err := sql.Open(drivename, connectionString)
 
 	if err != nil {
 		panic(err)

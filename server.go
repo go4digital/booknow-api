@@ -7,12 +7,12 @@ import (
 	"net/http"
 
 	"github.com/go4digital/booknow-api/controllers"
-	"github.com/go4digital/booknow-api/utils"
+	"github.com/go4digital/booknow-api/global"
 )
 
 func main() {
-	utils.InitLogger()
-	port := utils.Getenv("APPLICATION_PORT")
+	global.InitLogger()
+	port := global.Getenv("APPLICATION_PORT")
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		io.WriteString(response, "Hello from Book Now Api !\n")
@@ -22,7 +22,7 @@ func main() {
 
 		switch request.Method {
 		case http.MethodGet:
-			leadId := request.URL.Query().Get("id")
+			leadId := request.URL.Query().Get(global.ID)
 			if leadId != "" {
 				controllers.GetLead(request, response)
 			} else {

@@ -29,24 +29,19 @@ func NewMock() (*sql.DB, sqlmock.Sqlmock) {
 
 func TestInsertLead(t *testing.T) {
 	db, mock := NewMock()
-	defer func() {
-		db.Close()
-	}()
-
+	mockleads := NewLeads(db)
 	query := `insert into "leads"("firstname", "lastname", "email", "phone", "description")
 	values($1, $2, $3, $4, $5) RETURNING id`
 
 	prep := mock.ExpectPrepare(query)
 	prep.ExpectExec().WithArgs(lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description).WillReturnResult(sqlmock.NewResult(0, 1))
-
-	id, _ := lead.InsertLead(db)
+	id, _ := mockleads.CreateLead(lead)
 	assert.Equal(t, id, 1)
 }
 
 func TestGetLead(t *testing.T) {
 	db, mock := NewMock()
-	defer db.Close()
-
+	mockleads := NewLeads(db)
 	query := "SELECT id, firstname, lastname, email, phone, description FROM leads"
 
 	rows := mock.NewRows([]string{"id", "firstname", "lastname", "email", "phone", "description"}).
@@ -54,7 +49,7 @@ func TestGetLead(t *testing.T) {
 
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	leads, err := GetAllLeads(db)
+	leads, err := mockleads.GetAllLeads()
 	assert.NotNil(t, leads)
 	assert.NoError(t, err)
 }
