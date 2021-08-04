@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go4digital/booknow-api/dao"
+	"github.com/go4digital/booknow-api/model"
 	"github.com/go4digital/booknow-api/global"
 	"github.com/go4digital/booknow-api/services"
 )
@@ -49,7 +49,7 @@ func GetLead(request *http.Request, response http.ResponseWriter) {
 }
 
 func CreateLead(request *http.Request, response http.ResponseWriter) {
-	var lead dao.Lead
+	var lead model.Lead
 
 	err := json.NewDecoder(request.Body).Decode(&lead)
 
@@ -72,7 +72,7 @@ func CreateLead(request *http.Request, response http.ResponseWriter) {
 	}
 }
 func UpdateLead(request *http.Request, response http.ResponseWriter) {
-	var lead dao.Lead
+	var lead model.Lead
 
 	err := json.NewDecoder(request.Body).Decode(&lead)
 
