@@ -3,20 +3,20 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/go4digital/booknow-api/model"
 	"github.com/go4digital/booknow-api/global"
+	log "github.com/go4digital/booknow-api/logger"
+	"github.com/go4digital/booknow-api/model"
 	"github.com/go4digital/booknow-api/services"
 )
 
 func GetAllLeads(request *http.Request, response http.ResponseWriter) {
 	leads, err := services.LeadsService.GetAllLeads()
-	log.Println(leads)
 	if err != nil {
 		msg := "No Leads found"
+		log.Error(err)
 		response.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(response).Encode(msg)
 	} else {
@@ -31,14 +31,14 @@ func GetLead(request *http.Request, response http.ResponseWriter) {
 
 		if err != nil {
 			msg := fmt.Sprintf("Invalid lead ID ! %v", leadId)
-			log.Println(msg)
+			log.Error(err)
 			response.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(response).Encode(msg)
 		} else {
 			lead, err := services.LeadsService.GetLead(leadId)
 			if err != nil {
 				msg := fmt.Sprintf("No Data found for Id: %v", leadId)
-				log.Println(msg)
+				log.Error(err)
 				response.WriteHeader(http.StatusNotFound)
 				json.NewEncoder(response).Encode(msg)
 			} else {
@@ -55,14 +55,14 @@ func CreateLead(request *http.Request, response http.ResponseWriter) {
 
 	if err != nil {
 		msg := "Bad request: Invalid request body."
-		log.Println(msg)
+		log.Error(err)
 		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(msg)
 	} else {
 		leadId, err := services.LeadsService.CreateLead(&lead)
 		if err != nil {
 			msg := fmt.Sprintf("Unable to create lead. %v", err)
-			log.Println(msg)
+			log.Error(err)
 			response.WriteHeader(http.StatusExpectationFailed)
 			json.NewEncoder(response).Encode(msg)
 		} else {
@@ -78,13 +78,13 @@ func UpdateLead(request *http.Request, response http.ResponseWriter) {
 
 	if err != nil {
 		msg := "Bad request: Invalid request body."
-		log.Println(msg)
+		log.Error(err)
 		response.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(response).Encode(msg)
 	} else {
 		if lead.ID == 0 {
 			msg := fmt.Sprintf("Invalid lead ID ! %v", lead.ID)
-			log.Println(msg)
+			log.Error(err)
 			response.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(response).Encode(msg)
 		} else {
@@ -92,7 +92,7 @@ func UpdateLead(request *http.Request, response http.ResponseWriter) {
 			msg := ""
 			if err != nil {
 				msg = fmt.Sprintf("Unable to update lead. %v", err)
-				log.Println(msg)
+				log.Error(err)
 				response.WriteHeader(http.StatusExpectationFailed)
 				json.NewEncoder(response).Encode(msg)
 			} else {
@@ -110,14 +110,14 @@ func DeleteLead(request *http.Request, response http.ResponseWriter) {
 	leadId, err := strconv.ParseInt(id, 10, 64)
 
 	if err != nil {
-		log.Printf("Invalid lead ID ! %v", leadId)
+		log.Warn(fmt.Sprintf("Invalid lead ID ! %v", leadId))
 		json.NewEncoder(response).Encode(fmt.Sprintf("Invalid lead ID ! %v", leadId))
 		return
 	} else {
 		rowsAffected, err := services.LeadsService.DeleteLead(leadId)
 		if err != nil {
 			msg := fmt.Sprintf("Unable to delete lead. %v", err)
-			log.Println(msg)
+			log.Error(err)
 			response.WriteHeader(http.StatusExpectationFailed)
 			json.NewEncoder(response).Encode(msg)
 		} else {
