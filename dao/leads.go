@@ -2,9 +2,9 @@ package dao
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/go4digital/booknow-api/model"
+	log "github.com/go4digital/booknow-api/logger"
 )
 
 var (
@@ -41,7 +41,7 @@ func (leads *leads) CreateLead(lead *model.Lead) (int64, error) {
 
 	err := leads.db.QueryRow(INSERT, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description).Scan(&id)
 
-	checkError(err)
+	checkNPrintError(err)
 
 	return id, err
 }
@@ -50,11 +50,11 @@ func (leads *leads) UpdateLead(lead *model.Lead) (int64, error) {
 
 	res, err := leads.db.Exec(UPDATE, lead.ID, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description)
 
-	checkError(err)
+	checkNPrintError(err)
 
 	rowsAffected, err := res.RowsAffected()
 
-	checkError(err)
+	checkNPrintError(err)
 
 	return rowsAffected, err
 }
@@ -65,7 +65,7 @@ func (leads *leads) GetAllLeads() (*[]model.Lead, error) {
 
 	rows, err := leads.db.Query(LEADS_ALL)
 
-	checkError(err)
+	checkNPrintError(err)
 
 	// close the statement
 	defer rows.Close()
@@ -74,7 +74,7 @@ func (leads *leads) GetAllLeads() (*[]model.Lead, error) {
 	//iterate over the rows
 	for rows.Next() {
 		err = rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
-		checkError(err)
+		checkNPrintError(err)
 		leadsArray = append(leadsArray, lead)
 	}
 
@@ -96,17 +96,17 @@ func (leads *leads) DeleteLead(leadId int64) (int64, error) {
 
 	res, err := leads.db.Exec(DELETE, leadId)
 
-	checkError(err)
+	checkNPrintError(err)
 
 	rowsAffected, err := res.RowsAffected()
 
-	checkError(err)
+	checkNPrintError(err)
 
 	return rowsAffected, err
 }
 
-func checkError(err error) {
+func checkNPrintError(err error) {
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 }
