@@ -1,10 +1,8 @@
 package dao
 
 import (
-	"database/sql"
-
-	"github.com/go4digital/booknow-api/model"
-	log "github.com/go4digital/booknow-api/logger"
+	"github.com/go-pg/pg/v10"
+	"github.com/go4digital/booknow-api/models"
 )
 
 var (
@@ -20,22 +18,22 @@ const (
 )
 
 type leadsInterface interface {
-	CreateLead(*model.Lead) (int64, error)
-	UpdateLead(*model.Lead) (int64, error)
-	GetAllLeads() (*[]model.Lead, error)
-	GetLead(int64) (*model.Lead, error)
+	CreateLead(*models.Lead) (int64, error)
+	UpdateLead(*models.Lead) (int64, error)
+	GetAllLeads() (*[]models.Lead, error)
+	GetLead(int64) (*models.Lead, error)
 	DeleteLead(int64) (int64, error)
 }
 
 type leads struct {
-	db *sql.DB
+	DB *pg.DB
 }
 
-func NewLeads(db *sql.DB) leadsInterface {
-	return &leads{db: db}
+func NewLeads(db *pg.DB) leadsInterface {
+	return &leads{DB: db}
 }
 
-func (leads *leads) CreateLead(lead *model.Lead) (int64, error) {
+func (leads *leads) CreateLead(lead *models.Lead) (int64, error) {
 
 	var id int64
 
@@ -46,7 +44,7 @@ func (leads *leads) CreateLead(lead *model.Lead) (int64, error) {
 	return id, err
 }
 
-func (leads *leads) UpdateLead(lead *model.Lead) (int64, error) {
+func (leads *leads) UpdateLead(lead *models.Lead) (int64, error) {
 
 	res, err := leads.db.Exec(UPDATE, lead.ID, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description)
 
@@ -59,9 +57,9 @@ func (leads *leads) UpdateLead(lead *model.Lead) (int64, error) {
 	return rowsAffected, err
 }
 
-func (leads *leads) GetAllLeads() (*[]model.Lead, error) {
+func (leads *leads) GetAllLeads() (*[]models.Lead, error) {
 
-	var leadsArray []model.Lead
+	var leadsArray []models.Lead
 
 	rows, err := leads.db.Query(LEADS_ALL)
 
@@ -70,7 +68,7 @@ func (leads *leads) GetAllLeads() (*[]model.Lead, error) {
 	// close the statement
 	defer rows.Close()
 
-	var lead model.Lead
+	var lead models.Lead
 	//iterate over the rows
 	for rows.Next() {
 		err = rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
@@ -81,9 +79,9 @@ func (leads *leads) GetAllLeads() (*[]model.Lead, error) {
 	return &leadsArray, err
 }
 
-func (leads *leads) GetLead(leadId int64) (*model.Lead, error) {
+func (leads *leads) GetLead(leadId int64) (*models.Lead, error) {
 
-	var lead model.Lead
+	var lead models.Lead
 
 	rows := leads.db.QueryRow(LEADS, leadId)
 

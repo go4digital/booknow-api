@@ -1,0 +1,18 @@
+type Lead @goModel(model: "github.com/go4digital/booknow-api/models.Lead") {
+    id: Int!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String!
+    description:String!
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+input LeadInput @goModel(model: "github.com/go4digital/booknow-api/models.LeadInput") {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String!
+    description:String!
+}

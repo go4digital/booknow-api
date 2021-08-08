@@ -1,0 +1,7 @@
+{"level":"info","msg":"Server running on localhost:8080","time":"2021-08-08T21:41:25+05:30"}
+{"level":"error","msg":"pg: database is closed","time":"2021-08-08T22:12:15+05:30"}
+{"level":"info","msg":"Server running on localhost:8080","time":"2021-08-08T22:12:15+05:30"}
+{"level":"info","msg":"Lead table created","time":"2021-08-08T22:13:54+05:30"}
+{"level":"info","msg":"Server running on localhost:8080","time":"2021-08-08T22:13:54+05:30"}
+{"level":"info","msg":"Lead table created","time":"2021-08-08T22:16:33+05:30"}
+{"level":"info","msg":"Server running on localhost:8080","time":"2021-08-08T22:16:33+05:30"}

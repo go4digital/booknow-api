@@ -1,10 +1,10 @@
 package services
 
 import (
-	"github.com/go4digital/booknow-api/model"
 	"github.com/go4digital/booknow-api/dao"
 	"github.com/go4digital/booknow-api/database"
 	log "github.com/go4digital/booknow-api/logger"
+	"github.com/go4digital/booknow-api/model"
 )
 
 var (

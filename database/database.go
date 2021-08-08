@@ -1,28 +1,43 @@
 package database
 
 import (
-	"database/sql"
-
+	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/v10/orm"
 	"github.com/go4digital/booknow-api/global"
 	log "github.com/go4digital/booknow-api/logger"
-	_ "github.com/lib/pq"
+	"github.com/go4digital/booknow-api/models"
 )
 
-func Connect() *sql.DB {
+func Connect() *pg.DB {
 
-	connectionString := global.Getenv("CONNECTION_STR")
-	driverName := global.Getenv("DRIVER_NAME")
+	connectionString := global.Getenv("CONNECTION_STRING")
 
 	if connectionString == "" {
-		log.Warn("Error: Empty Connection String !")
+		log.Warn("Empty Connection String!")
 	}
 
-	db, err := sql.Open(driverName, connectionString)
-
+	opts, err := pg.ParseURL(connectionString)
 	if err != nil {
-	    log.Fatal(err)
-		panic(err)
+		log.Error(err)
+	}
+	var db *pg.DB = pg.Connect(opts)
+
+	if db == nil {
+		panic("Database connection failed")
 	}
 
 	return db
+}
+
+func CreateSchema(db *pg.DB) error {
+	opts := &orm.CreateTableOptions{
+		IfNotExists: true,
+	}
+	createError := db.Model(&models.Lead{}).CreateTable(opts)
+	if createError != nil {
+		log.Error(createError)
+		return createError
+	}
+	log.Info("Lead table created")
+	return nil
 }
