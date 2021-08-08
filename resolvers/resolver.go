@@ -3,12 +3,12 @@ package resolvers
 //go:generate go run github.com/99designs/gqlgen --verbose
 
 import (
-	"github.com/go-pg/pg/v10"
+	"github.com/go4digital/booknow-api/dao"
 	"github.com/go4digital/booknow-api/graph/generated"
 )
 
 type Resolver struct {
-	DB *pg.DB
+	LeadDao dao.LeadsInterface
 }
 
 func (resolver *Resolver) Mutation() generated.MutationResolver {

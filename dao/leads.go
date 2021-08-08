@@ -1,106 +1,100 @@
 package dao
 
 import (
+	"time"
+
 	"github.com/go-pg/pg/v10"
+	log "github.com/go4digital/booknow-api/logger"
 	"github.com/go4digital/booknow-api/models"
 )
 
 var (
-	Leads leadsInterface = &leads{}
+	Leads LeadsInterface = &leads{}
 )
 
-const (
-	LEADS_ALL = `SELECT id, firstname, lastname, email, phone, description FROM leads`
-	LEADS     = `SELECT id, firstname, lastname, email, phone, description FROM leads WHERE id=$1`
-	INSERT    = `insert into "leads"("firstname", "lastname", "email", "phone", "description") values($1, $2, $3, $4, $5) RETURNING id`
-	UPDATE    = `UPDATE leads SET firstname=$2, lastname=$3, email=$4, phone=$5, description=$6 WHERE id=$1`
-	DELETE    = `DELETE FROM leads WHERE id=$1`
-)
-
-type leadsInterface interface {
-	CreateLead(*models.Lead) (int64, error)
-	UpdateLead(*models.Lead) (int64, error)
-	GetAllLeads() (*[]models.Lead, error)
-	GetLead(int64) (*models.Lead, error)
-	DeleteLead(int64) (int64, error)
+type LeadsInterface interface {
+	CreateLead(*models.LeadInput) (*models.Lead, error)
+	UpdateLead(*models.LeadInput) error
+	GetAllLeads() ([]models.Lead, error)
+	GetLead(int) (*models.Lead, error)
+	DeleteLead(int) error
 }
 
 type leads struct {
-	DB *pg.DB
+	db *pg.DB
 }
 
-func NewLeads(db *pg.DB) leadsInterface {
-	return &leads{DB: db}
+func NewLeads(db *pg.DB) LeadsInterface {
+	return &leads{db: db}
 }
 
-func (leads *leads) CreateLead(lead *models.Lead) (int64, error) {
+func (leads *leads) CreateLead(input *models.LeadInput) (*models.Lead, error) {
 
-	var id int64
-
-	err := leads.db.QueryRow(INSERT, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description).Scan(&id)
-
-	checkNPrintError(err)
-
-	return id, err
-}
-
-func (leads *leads) UpdateLead(lead *models.Lead) (int64, error) {
-
-	res, err := leads.db.Exec(UPDATE, lead.ID, lead.FirstName, lead.LastName, lead.Email, lead.Phone, lead.Description)
-
-	checkNPrintError(err)
-
-	rowsAffected, err := res.RowsAffected()
-
-	checkNPrintError(err)
-
-	return rowsAffected, err
-}
-
-func (leads *leads) GetAllLeads() (*[]models.Lead, error) {
-
-	var leadsArray []models.Lead
-
-	rows, err := leads.db.Query(LEADS_ALL)
-
-	checkNPrintError(err)
-
-	// close the statement
-	defer rows.Close()
-
-	var lead models.Lead
-	//iterate over the rows
-	for rows.Next() {
-		err = rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
-		checkNPrintError(err)
-		leadsArray = append(leadsArray, lead)
+	lead := models.Lead{
+		FirstName:   input.FirstName,
+		LastName:    input.LastName,
+		Email:       input.Email,
+		Phone:       input.Phone,
+		Description: input.Description,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
+	_, err := leads.db.Model(&lead).Insert()
 
-	return &leadsArray, err
-}
-
-func (leads *leads) GetLead(leadId int64) (*models.Lead, error) {
-
-	var lead models.Lead
-
-	rows := leads.db.QueryRow(LEADS, leadId)
-
-	err := rows.Scan(&lead.ID, &lead.FirstName, &lead.LastName, &lead.Email, &lead.Phone, &lead.Description)
+	checkNPrintError(err)
 
 	return &lead, err
 }
 
-func (leads *leads) DeleteLead(leadId int64) (int64, error) {
+func (leads *leads) UpdateLead(input *models.LeadInput) error {
 
-	res, err := leads.db.Exec(DELETE, leadId)
+	lead := models.Lead{
+		ID:          input.ID,
+		FirstName:   input.FirstName,
+		LastName:    input.LastName,
+		Email:       input.Email,
+		Phone:       input.Phone,
+		Description: input.Description,
+		UpdatedAt:   time.Now(),
+	}
+
+	_, err := leads.db.Model(lead).WherePK().Update()
 
 	checkNPrintError(err)
 
-	rowsAffected, err := res.RowsAffected()
+	return err
+}
+
+func (leads *leads) GetAllLeads() ([]models.Lead, error) {
+
+	var leadsArray []models.Lead
+
+	err := leads.db.Model(&leadsArray).Select()
 
 	checkNPrintError(err)
 
-	return rowsAffected, err
+	return leadsArray, err
+}
+
+func (leads *leads) GetLead(id int) (*models.Lead, error) {
+
+	lead := models.Lead{ID: id}
+
+	err := leads.db.Model(lead).WherePK().Select()
+
+	checkNPrintError(err)
+
+	return &lead, err
+}
+
+func (leads *leads) DeleteLead(id int) error {
+	lead := models.Lead{ID: id}
+
+	_, err := leads.db.Model(lead).WherePK().Delete()
+
+	checkNPrintError(err)
+
+	return err
 }
 
 func checkNPrintError(err error) {

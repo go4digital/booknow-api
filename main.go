@@ -6,6 +6,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go4digital/booknow-api/dao"
 	"github.com/go4digital/booknow-api/database"
 	"github.com/go4digital/booknow-api/global"
 	"github.com/go4digital/booknow-api/graph/generated"
@@ -18,11 +19,13 @@ func main() {
 
 	db := database.Connect()
 
+	leadDao := dao.NewLeads(db)
+
 	database.CreateSchema(db)
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			DB: db,
+			LeadDao: leadDao,
 		},
 		Directives: generated.DirectiveRoot{},
 		Complexity: generated.ComplexityRoot{}}))
