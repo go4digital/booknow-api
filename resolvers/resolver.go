@@ -8,7 +8,7 @@ import (
 )
 
 type Resolver struct {
-	LeadDao dao.LeadsInterface
+	Service dao.Leads
 }
 
 func (resolver *Resolver) Mutation() generated.MutationResolver {

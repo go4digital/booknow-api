@@ -8,27 +8,23 @@ import (
 	"github.com/go4digital/booknow-api/models"
 )
 
-var (
-	Leads LeadsInterface = &leads{}
-)
-
-type LeadsInterface interface {
-	CreateLead(*models.LeadInput) (*models.Lead, error)
-	UpdateLead(*models.LeadInput) error
-	GetAllLeads() ([]models.Lead, error)
-	GetLead(int) (*models.Lead, error)
-	DeleteLead(int) error
+type Leads interface {
+	Create(*models.LeadInput) (*models.Lead, error)
+	Update(*models.LeadInput) error
+	GetAll() ([]models.Lead, error)
+	Get(int) (*models.Lead, error)
+	Delete(int) error
 }
 
 type leads struct {
 	db *pg.DB
 }
 
-func NewLeads(db *pg.DB) LeadsInterface {
+func NewLeads(db *pg.DB) Leads {
 	return &leads{db: db}
 }
 
-func (leads *leads) CreateLead(input *models.LeadInput) (*models.Lead, error) {
+func (leads *leads) Create(input *models.LeadInput) (*models.Lead, error) {
 
 	lead := models.Lead{
 		FirstName:   input.FirstName,
@@ -37,7 +33,6 @@ func (leads *leads) CreateLead(input *models.LeadInput) (*models.Lead, error) {
 		Phone:       input.Phone,
 		Description: input.Description,
 		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
 	}
 	_, err := leads.db.Model(&lead).Insert()
 
@@ -46,7 +41,7 @@ func (leads *leads) CreateLead(input *models.LeadInput) (*models.Lead, error) {
 	return &lead, err
 }
 
-func (leads *leads) UpdateLead(input *models.LeadInput) error {
+func (leads *leads) Update(input *models.LeadInput) error {
 
 	lead := models.Lead{
 		ID:          input.ID,
@@ -55,7 +50,6 @@ func (leads *leads) UpdateLead(input *models.LeadInput) error {
 		Email:       input.Email,
 		Phone:       input.Phone,
 		Description: input.Description,
-		UpdatedAt:   time.Now(),
 	}
 
 	_, err := leads.db.Model(lead).WherePK().Update()
@@ -65,7 +59,7 @@ func (leads *leads) UpdateLead(input *models.LeadInput) error {
 	return err
 }
 
-func (leads *leads) GetAllLeads() ([]models.Lead, error) {
+func (leads *leads) GetAll() ([]models.Lead, error) {
 
 	var leadsArray []models.Lead
 
@@ -76,7 +70,7 @@ func (leads *leads) GetAllLeads() ([]models.Lead, error) {
 	return leadsArray, err
 }
 
-func (leads *leads) GetLead(id int) (*models.Lead, error) {
+func (leads *leads) Get(id int) (*models.Lead, error) {
 
 	lead := models.Lead{ID: id}
 
@@ -87,7 +81,7 @@ func (leads *leads) GetLead(id int) (*models.Lead, error) {
 	return &lead, err
 }
 
-func (leads *leads) DeleteLead(id int) error {
+func (leads *leads) Delete(id int) error {
 	lead := models.Lead{ID: id}
 
 	_, err := leads.db.Model(lead).WherePK().Delete()

@@ -6,7 +6,6 @@ type Lead @goModel(model: "github.com/go4digital/booknow-api/models.Lead") {
     phone: String!
     description:String!
     createdAt: Time!
-    updatedAt: Time!
 }
 
 input LeadInput @goModel(model: "github.com/go4digital/booknow-api/models.LeadInput") {

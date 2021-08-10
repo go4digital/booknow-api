@@ -12,6 +12,7 @@ import (
 	"github.com/go4digital/booknow-api/graph/generated"
 	log "github.com/go4digital/booknow-api/logger"
 	"github.com/go4digital/booknow-api/resolvers"
+	"github.com/go4digital/booknow-api/services"
 )
 
 func main() {
@@ -19,13 +20,15 @@ func main() {
 
 	db := database.Connect()
 
+	database.CreateSchema(db)
+
 	leadDao := dao.NewLeads(db)
 
-	database.CreateSchema(db)
+	leadsService := services.NewLeads(leadDao)
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			LeadDao: leadDao,
+			Service: leadsService,
 		},
 		Directives: generated.DirectiveRoot{},
 		Complexity: generated.ComplexityRoot{}}))
