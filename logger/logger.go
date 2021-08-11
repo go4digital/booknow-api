@@ -26,6 +26,7 @@ func init() {
 		}})
 	log.Level = logrus.DebugLevel
 	date := time.Now().Format("2006-01-02")
+	createFolder()
 	fileName := fmt.Sprintf("logs/%v.log", date)
 	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
@@ -38,6 +39,15 @@ func init() {
 	mw := io.MultiWriter(os.Stdout, file)
 	log.SetOutput(mw)
 
+}
+
+func createFolder() {
+	if _, err := os.Stat("logs"); os.IsNotExist(err) {
+		err = os.Mkdir("logs", 0755)
+		if err != nil {
+			logging.Fatalf("Error creating logs folder %v", err)
+		}
+	}
 }
 
 func caller() func(*runtime.Frame) (function string, file string) {

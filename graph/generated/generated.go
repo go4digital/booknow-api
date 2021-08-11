@@ -229,8 +229,7 @@ directive @goModel(model: String, models: [String!]) on OBJECT
 
 directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
     | FIELD_DEFINITION`, BuiltIn: false},
-	{Name: "schema/leads.graphql", Input: `
-type Query {
+	{Name: "schema/leads.graphql", Input: `type Query {
     leads: [Lead!]!
 }
 
