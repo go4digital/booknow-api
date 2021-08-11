@@ -55,7 +55,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateLead func(childComplexity int, input models.LeadInput) int
+		CreateLead func(childComplexity int, input models.Lead) int
 	}
 
 	Query struct {
@@ -64,7 +64,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateLead(ctx context.Context, input models.LeadInput) (*models.Lead, error)
+	CreateLead(ctx context.Context, input models.Lead) (*models.Lead, error)
 }
 type QueryResolver interface {
 	Leads(ctx context.Context) ([]models.Lead, error)
@@ -144,7 +144,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateLead(childComplexity, args["input"].(models.LeadInput)), true
+		return e.complexity.Mutation.CreateLead(childComplexity, args["input"].(models.Lead)), true
 
 	case "Query.leads":
 		if e.complexity.Query.Leads == nil {
@@ -263,7 +263,7 @@ scalar Any
     createdAt: Time!
 }
 
-input LeadInput @goModel(model: "github.com/go4digital/booknow-api/models.LeadInput") {
+input LeadInput @goModel(model: "github.com/go4digital/booknow-api/models.Lead") {
     firstName: String!
     lastName: String!
     email: String!
@@ -280,10 +280,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createLead_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.LeadInput
+	var arg0 models.Lead
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNLeadInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLeadInput(ctx, tmp)
+		arg0, err = ec.unmarshalNLeadInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -615,7 +615,7 @@ func (ec *executionContext) _Mutation_createLead(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateLead(rctx, args["input"].(models.LeadInput))
+		return ec.resolvers.Mutation().CreateLead(rctx, args["input"].(models.Lead))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1825,8 +1825,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputLeadInput(ctx context.Context, obj interface{}) (models.LeadInput, error) {
-	var it models.LeadInput
+func (ec *executionContext) unmarshalInputLeadInput(ctx context.Context, obj interface{}) (models.Lead, error) {
+	var it models.Lead
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -2343,7 +2343,7 @@ func (ec *executionContext) marshalNLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknow�
 	return ec._Lead(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNLeadInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLeadInput(ctx context.Context, v interface{}) (models.LeadInput, error) {
+func (ec *executionContext) unmarshalNLeadInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx context.Context, v interface{}) (models.Lead, error) {
 	res, err := ec.unmarshalInputLeadInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }

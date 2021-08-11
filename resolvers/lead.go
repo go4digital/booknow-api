@@ -8,20 +8,20 @@ import (
 
 func (resolver *queryResolver) Lead(ctx context.Context, id int) (*models.Lead, error) {
 
-	lead, err := resolver.Service.Get(id)
+	lead, err := resolver.Service.GetLead(id)
 
 	return lead, err
 }
 func (resolver *queryResolver) Leads(ctx context.Context) ([]models.Lead, error) {
 
-	leads, err := resolver.Service.GetAll()
+	leads, err := resolver.Service.GetAllLeads()
 
 	return leads, err
 }
 
-func (resolver *mutationResolver) CreateLead(ctx context.Context, lead models.LeadInput) (*models.Lead, error) {
+func (resolver *mutationResolver) CreateLead(ctx context.Context, lead models.Lead) (*models.Lead, error) {
 
-	leads, err := resolver.Service.Create(&lead)
+	leads, err := resolver.Service.CreateLead(&lead)
 	if err != nil {
 		return nil, err
 	}

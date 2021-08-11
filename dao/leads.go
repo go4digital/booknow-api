@@ -9,8 +9,8 @@ import (
 )
 
 type Leads interface {
-	Create(*models.LeadInput) (*models.Lead, error)
-	Update(*models.LeadInput) error
+	Create(*models.Lead) (*models.Lead, error)
+	Update(*models.Lead) error
 	GetAll() ([]models.Lead, error)
 	Get(int) (*models.Lead, error)
 	Delete(int) error
@@ -24,7 +24,7 @@ func NewLeads(db *pg.DB) Leads {
 	return &leads{db: db}
 }
 
-func (leads *leads) Create(input *models.LeadInput) (*models.Lead, error) {
+func (leads *leads) Create(input *models.Lead) (*models.Lead, error) {
 
 	lead := models.Lead{
 		FirstName:   input.FirstName,
@@ -41,7 +41,7 @@ func (leads *leads) Create(input *models.LeadInput) (*models.Lead, error) {
 	return &lead, err
 }
 
-func (leads *leads) Update(input *models.LeadInput) error {
+func (leads *leads) Update(input *models.Lead) error {
 
 	lead := models.Lead{
 		ID:          input.ID,

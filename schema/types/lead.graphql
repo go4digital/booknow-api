@@ -8,7 +8,7 @@ type Lead @goModel(model: "github.com/go4digital/booknow-api/models.Lead") {
     createdAt: Time!
 }
 
-input LeadInput @goModel(model: "github.com/go4digital/booknow-api/models.LeadInput") {
+input LeadInput @goModel(model: "github.com/go4digital/booknow-api/models.Lead") {
     firstName: String!
     lastName: String!
     email: String!

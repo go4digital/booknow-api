@@ -33,11 +33,16 @@ func CreateSchema(db *pg.DB) error {
 	opts := &orm.CreateTableOptions{
 		IfNotExists: true,
 	}
-	createError := db.Model(&models.Lead{}).CreateTable(opts)
-	if createError != nil {
-		log.Error(createError)
-		return createError
-	}
-	log.Info("Lead table created")
+	createLeadTable(opts, db);
 	return nil
+}
+
+func createLeadTable (opts *orm.CreateTableOptions, db *pg.DB) error {
+    createError := db.Model(&models.Lead{}).CreateTable(opts)
+    if createError != nil {
+        log.Error(createError)
+        return createError
+    }
+    log.Info("Lead table created")
+    return nil
 }
