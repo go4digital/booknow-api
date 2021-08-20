@@ -67,8 +67,8 @@ func Warn(msg string) {
 func Error(err error) {
 	log.Error(err)
 }
-func Debug(msg string) {
-	log.Debug(msg)
+func Debug(arg ...interface{}) {
+	log.Debug(arg)
 }
 func Fatal(err error) {
 	log.Fatal(err)

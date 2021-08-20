@@ -11,6 +11,7 @@ import (
 	"github.com/go4digital/booknow-api/global"
 	"github.com/go4digital/booknow-api/graph/generated"
 	log "github.com/go4digital/booknow-api/logger"
+	"github.com/go4digital/booknow-api/middleware"
 	"github.com/go4digital/booknow-api/resolvers"
 	"github.com/go4digital/booknow-api/services"
 )
@@ -34,7 +35,7 @@ func main() {
 		Complexity: generated.ComplexityRoot{}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", server)
+	http.Handle("/query", middleware.CorsMiddleware(middleware.VerifyCaptcha(server)))
 
 	log.Info(fmt.Sprintf("Server running on localhost:%s", port))
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
