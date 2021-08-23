@@ -19,4 +19,4 @@
 logs/*
 
 # env file
-*.evn
+.evn
