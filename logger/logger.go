@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go4digital/booknow-api/constants"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,35 +18,31 @@ var (
 )
 
 func init() {
+	// First create logs folder if not exist
+	createFolder()
 
 	log = logrus.New()
-	logrus.SetReportCaller(true)
 	log.SetFormatter(&logrus.JSONFormatter{CallerPrettyfier: caller(),
 		FieldMap: logrus.FieldMap{
 			logrus.FieldKeyFile: "caller",
 		}})
-	log.Level = logrus.DebugLevel
-	date := time.Now().Format("2006-01-02")
-	createFolder()
-	fileName := fmt.Sprintf("logs/%v.log", date)
-	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	date := time.Now().Format(constants.YYYYMMDD)
+	fileName := fmt.Sprintf("%v/%v.log", constants.LOGS_FOLDER_NAME, date)
+	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, constants.READ_WRITE)
 
 	if err != nil {
-		logging.Fatalf("error opening file: %v", err)
+		logging.Fatalf("Error opening file:- %v", err)
 	}
-
-	log.SetReportCaller(false)
 
 	mw := io.MultiWriter(os.Stdout, file)
 	log.SetOutput(mw)
-
 }
 
 func createFolder() {
-	if _, err := os.Stat("logs"); os.IsNotExist(err) {
-		err = os.Mkdir("logs", 0755)
+	if _, err := os.Stat(constants.LOGS_FOLDER_NAME); os.IsNotExist(err) {
+		err = os.Mkdir(constants.LOGS_FOLDER_NAME, constants.ADMIN_RIGHT)
 		if err != nil {
-			logging.Fatalf("Error creating logs folder %v", err)
+			logging.Fatalf("Error creating logs folder:- %v", err)
 		}
 	}
 }

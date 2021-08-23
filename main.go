@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go-pg/pg/v10"
 	"github.com/go4digital/booknow-api/dao"
 	"github.com/go4digital/booknow-api/database"
 	"github.com/go4digital/booknow-api/global"
@@ -16,13 +18,19 @@ import (
 	"github.com/go4digital/booknow-api/services"
 )
 
-func main() {
-	port := global.Getenv("APPLICATION_PORT")
+var db *pg.DB
+var port string
 
-	db := database.Connect()
+func init() {
+	global.LoadEnvFile()
+	port = os.Getenv("APPLICATION_PORT")
 
+	db = database.Connect()
 	database.CreateSchema(db)
+}
 
+func main() {
+	defer db.Close()
 	leadDao := dao.NewLeads(db)
 
 	leadsService := services.NewLeads(leadDao)
@@ -39,7 +47,4 @@ func main() {
 
 	log.Info(fmt.Sprintf("Server running on localhost:%s", port))
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
-
-	defer db.Close()
-
 }

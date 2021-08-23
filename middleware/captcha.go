@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	log "github.com/go4digital/booknow-api/logger"
 )
@@ -18,30 +19,33 @@ type CaptchaResponse struct {
 }
 
 func VerifyCaptcha(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
-		token := request.Header.Get("Captcha-Token")
-		if token != "" && http.MethodPost == request.Method {
-			secretKey := "6LcgMgYcAAAAAAmCgeZAw7hurmIPpIM5k4xKSmYV"
-			verificationUrl := fmt.Sprintf("https://www.google.com/recaptcha/api/siteverify?response=%v&secret=%s", token, secretKey)
+	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if request.Header.Get("form-submit") != "" {
+			token := request.Header.Get("Captcha-Token")
+			if token != "" && http.MethodPost == request.Method {
+				captchaBaseUrl := os.Getenv("GOOGLE_CAPTCHA_VERIFICATION_URL")
+				capptchaSecretKey := os.Getenv("GOOGLE_CAPTCHA_SECRET_KEY")
+				urlWithParam := fmt.Sprintf("%v?secret=%v&response=%v", captchaBaseUrl, capptchaSecretKey, token)
 
-			response, err := http.Post(verificationUrl, "application/json", bytes.NewBuffer([]byte("")))
+				data, err := http.Post(urlWithParam, "application/json", bytes.NewBuffer([]byte("")))
 
-			if err != nil {
-				log.Error(err)
-			}
+				if err != nil {
+					log.Error(err)
+				}
 
-			defer response.Body.Close()
+				defer data.Body.Close()
 
-			var res CaptchaResponse
+				var res CaptchaResponse
 
-			json.NewDecoder(response.Body).Decode(&res)
+				json.NewDecoder(data.Body).Decode(&res)
 
-			if !res.Success && res.Score <= 0.2 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("Bots not allowed!"))
-				return
+				if !res.Success && res.Score <= 0.2 {
+					response.WriteHeader(http.StatusBadRequest)
+					response.Write([]byte("Bots not allowed!"))
+					return
+				}
 			}
 		}
-		next.ServeHTTP(w, request)
+		next.ServeHTTP(response, request)
 	})
 }
