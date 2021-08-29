@@ -1,0 +1,7 @@
+type Query {
+    leads: [Lead!]!
+}
+
+type Mutation {
+    createLead(input: LeadInput!): Lead!
+}

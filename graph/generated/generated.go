@@ -9,10 +9,11 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/go4digital/booknow-api/graph/model"
+	"github.com/go4digital/booknow-api/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -44,15 +45,17 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Lead struct {
-		Email     func(childComplexity int) int
-		FirstName func(childComplexity int) int
-		ID        func(childComplexity int) int
-		LastName  func(childComplexity int) int
-		Phone     func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		Email       func(childComplexity int) int
+		FirstName   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		LastName    func(childComplexity int) int
+		Phone       func(childComplexity int) int
 	}
 
 	Mutation struct {
-		CreateLead func(childComplexity int, input *model.LeadInput) int
+		CreateLead func(childComplexity int, input models.Lead) int
 	}
 
 	Query struct {
@@ -61,10 +64,10 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateLead(ctx context.Context, input *model.LeadInput) (*model.Lead, error)
+	CreateLead(ctx context.Context, input models.Lead) (*models.Lead, error)
 }
 type QueryResolver interface {
-	Leads(ctx context.Context) ([]*model.Lead, error)
+	Leads(ctx context.Context) ([]models.Lead, error)
 }
 
 type executableSchema struct {
@@ -81,6 +84,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Lead.createdAt":
+		if e.complexity.Lead.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Lead.CreatedAt(childComplexity), true
+
+	case "Lead.description":
+		if e.complexity.Lead.Description == nil {
+			break
+		}
+
+		return e.complexity.Lead.Description(childComplexity), true
 
 	case "Lead.email":
 		if e.complexity.Lead.Email == nil {
@@ -127,7 +144,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateLead(childComplexity, args["input"].(*model.LeadInput)), true
+		return e.complexity.Mutation.CreateLead(childComplexity, args["input"].(models.Lead)), true
 
 	case "Query.leads":
 		if e.complexity.Query.Leads == nil {
@@ -200,29 +217,58 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `type Lead {
-    id: ID!
-    firstName: String!
-    lastName: String!
-    email: String!
-    phone: String!
-}
+	{Name: "schema/directives.graphql", Input: `# GQL Directives
+# This part is fairly necessary and is described in the gql documentation
+# https://gqlgen.com/config/
+directive @goModel(model: String, models: [String!]) on OBJECT
+    | INPUT_OBJECT
+    | SCALAR
+    | ENUM
+    | INTERFACE
+    | UNION
 
-type Query {
+directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITION
+    | FIELD_DEFINITION`, BuiltIn: false},
+	{Name: "schema/leads.graphql", Input: `type Query {
     leads: [Lead!]!
 }
 
-input LeadInput {
+type Mutation {
+    createLead(input: LeadInput!): Lead!
+}`, BuiltIn: false},
+	{Name: "schema/scalars.graphql", Input: `# gqlgen supports some custom scalars out of the box
+# see: https://github.com/99designs/gqlgen/blob/master/docs/content/reference/scalars.md
+
+# resolves to time.Time
+scalar Time
+
+# resolves to map[string]interface{}
+scalar Map
+
+# resolves to interface{}
+scalar Any
+`, BuiltIn: false},
+	{Name: "schema/schema.graphql", Input: `schema {
+    query: Query
+    mutation: Mutation
+}`, BuiltIn: false},
+	{Name: "schema/types/lead.graphql", Input: `type Lead @goModel(model: "github.com/go4digital/booknow-api/models.Lead") {
+    id: Int!
     firstName: String!
     lastName: String!
     email: String!
     phone: String!
+    description:String!
+    createdAt: Time!
 }
 
-type Mutation {
-    createLead(input: LeadInput): Lead
-}
-`, BuiltIn: false},
+input LeadInput @goModel(model: "github.com/go4digital/booknow-api/models.Lead") {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String!
+    description:String!
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -233,10 +279,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createLead_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.LeadInput
+	var arg0 models.Lead
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOLeadInput2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLeadInput(ctx, tmp)
+		arg0, err = ec.unmarshalNLeadInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -298,7 +344,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Lead_id(ctx context.Context, field graphql.CollectedField, obj *model.Lead) (ret graphql.Marshaler) {
+func (ec *executionContext) _Lead_id(ctx context.Context, field graphql.CollectedField, obj *models.Lead) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -328,12 +374,12 @@ func (ec *executionContext) _Lead_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Lead_firstName(ctx context.Context, field graphql.CollectedField, obj *model.Lead) (ret graphql.Marshaler) {
+func (ec *executionContext) _Lead_firstName(ctx context.Context, field graphql.CollectedField, obj *models.Lead) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -368,7 +414,7 @@ func (ec *executionContext) _Lead_firstName(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Lead_lastName(ctx context.Context, field graphql.CollectedField, obj *model.Lead) (ret graphql.Marshaler) {
+func (ec *executionContext) _Lead_lastName(ctx context.Context, field graphql.CollectedField, obj *models.Lead) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -403,7 +449,7 @@ func (ec *executionContext) _Lead_lastName(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Lead_email(ctx context.Context, field graphql.CollectedField, obj *model.Lead) (ret graphql.Marshaler) {
+func (ec *executionContext) _Lead_email(ctx context.Context, field graphql.CollectedField, obj *models.Lead) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -438,7 +484,7 @@ func (ec *executionContext) _Lead_email(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Lead_phone(ctx context.Context, field graphql.CollectedField, obj *model.Lead) (ret graphql.Marshaler) {
+func (ec *executionContext) _Lead_phone(ctx context.Context, field graphql.CollectedField, obj *models.Lead) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -473,6 +519,76 @@ func (ec *executionContext) _Lead_phone(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Lead_description(ctx context.Context, field graphql.CollectedField, obj *models.Lead) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Lead",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Lead_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.Lead) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Lead",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createLead(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -498,18 +614,21 @@ func (ec *executionContext) _Mutation_createLead(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateLead(rctx, args["input"].(*model.LeadInput))
+		return ec.resolvers.Mutation().CreateLead(rctx, args["input"].(models.Lead))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Lead)
+	res := resTmp.(*models.Lead)
 	fc.Result = res
-	return ec.marshalOLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLead(ctx, field.Selections, res)
+	return ec.marshalNLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_leads(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -542,9 +661,9 @@ func (ec *executionContext) _Query_leads(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Lead)
+	res := resTmp.([]models.Lead)
 	fc.Result = res
-	return ec.marshalNLead2ᚕᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLeadᚄ(ctx, field.Selections, res)
+	return ec.marshalNLead2ᚕgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLeadᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1705,8 +1824,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputLeadInput(ctx context.Context, obj interface{}) (model.LeadInput, error) {
-	var it model.LeadInput
+func (ec *executionContext) unmarshalInputLeadInput(ctx context.Context, obj interface{}) (models.Lead, error) {
+	var it models.Lead
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -1743,6 +1862,14 @@ func (ec *executionContext) unmarshalInputLeadInput(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			it.Description, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -1759,7 +1886,7 @@ func (ec *executionContext) unmarshalInputLeadInput(ctx context.Context, obj int
 
 var leadImplementors = []string{"Lead"}
 
-func (ec *executionContext) _Lead(ctx context.Context, sel ast.SelectionSet, obj *model.Lead) graphql.Marshaler {
+func (ec *executionContext) _Lead(ctx context.Context, sel ast.SelectionSet, obj *models.Lead) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, leadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1793,6 +1920,16 @@ func (ec *executionContext) _Lead(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "description":
+			out.Values[i] = ec._Lead_description(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Lead_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1821,6 +1958,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "createLead":
 			out.Values[i] = ec._Mutation_createLead(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2136,13 +2276,13 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2151,7 +2291,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNLead2ᚕᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLeadᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Lead) graphql.Marshaler {
+func (ec *executionContext) marshalNLead2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx context.Context, sel ast.SelectionSet, v models.Lead) graphql.Marshaler {
+	return ec._Lead(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLead2ᚕgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLeadᚄ(ctx context.Context, sel ast.SelectionSet, v []models.Lead) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2175,7 +2319,7 @@ func (ec *executionContext) marshalNLead2ᚕᚖgithubᚗcomᚋgo4digitalᚋbookn
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLead(ctx, sel, v[i])
+			ret[i] = ec.marshalNLead2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2188,7 +2332,7 @@ func (ec *executionContext) marshalNLead2ᚕᚖgithubᚗcomᚋgo4digitalᚋbookn
 	return ret
 }
 
-func (ec *executionContext) marshalNLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLead(ctx context.Context, sel ast.SelectionSet, v *model.Lead) graphql.Marshaler {
+func (ec *executionContext) marshalNLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx context.Context, sel ast.SelectionSet, v *models.Lead) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2198,6 +2342,11 @@ func (ec *executionContext) marshalNLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknow�
 	return ec._Lead(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNLeadInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐLead(ctx context.Context, v interface{}) (models.Lead, error) {
+	res, err := ec.unmarshalInputLeadInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2205,6 +2354,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2466,21 +2630,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) marshalOLead2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLead(ctx context.Context, sel ast.SelectionSet, v *model.Lead) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Lead(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOLeadInput2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋgraphᚋmodelᚐLeadInput(ctx context.Context, v interface{}) (*model.LeadInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputLeadInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2488,6 +2637,42 @@ func (ec *executionContext) unmarshalOString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	return graphql.MarshalString(v)
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
