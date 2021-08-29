@@ -20,7 +20,7 @@ type CaptchaResponse struct {
 
 func VerifyCaptcha(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
-		if request.Header.Get("form-submit") != "" {
+		if request.Header.Get("Form-Submit") != "" {
 			token := request.Header.Get("Captcha-Token")
 			if token != "" && http.MethodPost == request.Method {
 				captchaBaseUrl := os.Getenv("GOOGLE_CAPTCHA_VERIFICATION_URL")
