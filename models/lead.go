@@ -3,11 +3,11 @@ package models
 import "time"
 
 type Lead struct {
-	ID          int       `json:"id" pg:",pk,unique,notnull"`
-	FirstName   string    `json:"firstName" pg:",notnull"`
-	LastName    string    `json:"lastName" pg:",notnull"`
-	Email       string    `json:"email" pg:",notnull"`
-	Phone       string    `json:"phone" pg:",notnull"`
-	Description string    `json:"description" pg:",notnull"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID          int       `json:"id" bun:",unique,notnull"`
+	FirstName   string    `json:"firstName" bun:",notnull"`
+	LastName    string    `json:"lastName" bun:",notnull"`
+	Email       string    `json:"email" bun:",notnull"`
+	Phone       string    `json:"phone" bun:",notnull"`
+	Description string    `json:"description" bun:",notnull"`
+	CreatedAt   time.Time `json:"createdAt" bun:",notnull,default:current_timestamp"`
 }
