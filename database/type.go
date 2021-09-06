@@ -1,4 +1,4 @@
-package models
+package database
 
 type Type struct {
 	Id          int    `bun:",unique,notnull"`

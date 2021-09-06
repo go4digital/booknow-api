@@ -1,4 +1,4 @@
-package models
+package database
 
 type PersonContact struct {
 	Id        int `bun:",unique,notnull"`

@@ -7,9 +7,8 @@ Booking management system GraphQL API
 1. Go
 2. Postgres
 3. GraphQL
-4. GO-PG ORM
+4. Bun ORM
 5. Logrus
-
 
 # Setup
 
@@ -24,18 +23,18 @@ Booking management system GraphQL API
 5. **Start the magic by running the following command**
    - `go run main.go`
 
-
 # Sample Queries
 
 ```graphql
 query {
   {
-  leads {
+  messages {
     firstName
     lastName
     email
     phone
     description
+    address
   }
 }
 }
@@ -43,13 +42,14 @@ query {
 
 ```graphql
 mutation {
-  createLead(
+  saveMessage(
     input: {
       firstName: "Test"
       lastName: "User"
       email: "test.user@example.com"
       phone: "9874561236"
       description: "need cleaning service"
+      address: "05 DL chetra gali"
     }
   ) {
     id
@@ -58,11 +58,11 @@ mutation {
     email
     phone
     description
-    createdAt
+    address
   }
 }
 ```
 
-
 **Follow Example Link**
+
 > https://github.com/oshalygin/gqlgen-pg-todo-example

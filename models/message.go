@@ -1,10 +1,11 @@
 package models
 
 type Message struct {
-	Id           int    `bun:",unique,notnull"`
-	Description  string `bun:",notnull,type:varchar(250)"`
-	FromPersonId int
-	ToPersonId   int
-	ReferencesId int
-	References   *References `bun:"rel:has-one"`
+	ID          int    `json:"id"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	Description string `json:"description"`
+	Address     string `json:"address"`
 }

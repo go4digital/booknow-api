@@ -6,7 +6,6 @@ import (
 	"os"
 
 	log "github.com/go4digital/booknow-api/logger"
-	"github.com/go4digital/booknow-api/models"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -35,12 +34,12 @@ func CreateSchema(db *bun.DB) error {
 	var err error
 	ctx := context.Background()
 	models := []interface{}{
-		(*models.Type)(nil),
-		(*models.References)(nil),
-		(*models.Contact)(nil),
-		(*models.Person)(nil),
-		(*models.PersonContact)(nil),
-		(*models.Message)(nil),
+		(*Type)(nil),
+		(*References)(nil),
+		(*Contact)(nil),
+		(*Person)(nil),
+		(*PersonContact)(nil),
+		(*Message)(nil),
 	}
 	for _, model := range models {
 		if _, err = db.NewCreateTable().Model(model).Exec(ctx); err != nil {

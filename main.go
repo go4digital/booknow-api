@@ -31,13 +31,13 @@ func init() {
 
 func main() {
 	defer db.Close()
-	leadDao := dao.NewLeads(db)
+	messageDao := dao.NewMessages(db)
 
-	leadsService := services.NewLeads(leadDao)
+	messagesService := services.NewMessages(messageDao)
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			Service: leadsService,
+			Service: messagesService,
 		},
 		Directives: generated.DirectiveRoot{},
 		Complexity: generated.ComplexityRoot{}}))
