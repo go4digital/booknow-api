@@ -35,7 +35,7 @@ func CreateSchema(db *bun.DB) error {
 	ctx := context.Background()
 	models := []interface{}{
 		(*Type)(nil),
-		(*References)(nil),
+		(*Reference)(nil),
 		(*Contact)(nil),
 		(*Person)(nil),
 		(*PersonContact)(nil),

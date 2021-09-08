@@ -12,16 +12,16 @@ type Messages interface {
 	GetMessage(int) (*models.Message, error)
 }
 
-type messages struct {
-	messagesDao dao.Messages
+type message struct {
+	messageDao dao.Message
 }
 
-func NewMessages(messagesDao dao.Messages) Messages {
-	return &messages{messagesDao: messagesDao}
+func NewMessage(messageDao dao.Message) Messages {
+	return &message{messageDao: messageDao}
 }
 
-func (service *messages) SaveMessage(message *models.Message) (*models.Message, error) {
-	leadId, err := service.messagesDao.Create(message)
+func (service *message) SaveMessage(message *models.Message) (*models.Message, error) {
+	leadId, err := service.messageDao.Create(message)
 	if err != nil {
 		log.Error(err)
 	}
@@ -29,24 +29,24 @@ func (service *messages) SaveMessage(message *models.Message) (*models.Message, 
 
 }
 
-func (service *messages) UpdateMessage(message *models.Message) error {
-	err := service.messagesDao.Update(message)
+func (service *message) UpdateMessage(message *models.Message) error {
+	err := service.messageDao.Update(message)
 	if err != nil {
 		log.Error(err)
 	}
 	return err
 }
 
-func (service *messages) GetAllMessages() ([]models.Message, error) {
-	leads, err := service.messagesDao.GetAll()
+func (service *message) GetAllMessages() ([]models.Message, error) {
+	leads, err := service.messageDao.GetAll()
 	if err != nil {
 		log.Error(err)
 	}
 	return leads, err
 }
 
-func (service *messages) GetMessage(id int) (*models.Message, error) {
-	lead, err := service.messagesDao.Get(id)
+func (service *message) GetMessage(id int) (*models.Message, error) {
+	lead, err := service.messageDao.Get(id)
 	if err != nil {
 		log.Error(err)
 	}

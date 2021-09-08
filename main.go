@@ -31,9 +31,9 @@ func init() {
 
 func main() {
 	defer db.Close()
-	messageDao := dao.NewMessages(db)
+	messageDao := dao.NewMessage(db)
 
-	messagesService := services.NewMessages(messageDao)
+	messagesService := services.NewMessage(messageDao)
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
