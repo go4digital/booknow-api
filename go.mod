@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.13.0
 	github.com/joho/godotenv v1.3.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/uptrace/bun v1.0.2
+	github.com/uptrace/bun v1.0.5
 	github.com/uptrace/bun/dialect/pgdialect v0.4.3
 	github.com/uptrace/bun/driver/pgdriver v0.4.3
 	github.com/vektah/gqlparser/v2 v2.1.0

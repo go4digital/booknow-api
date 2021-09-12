@@ -14,8 +14,8 @@ type Message interface {
 	Create(*models.Message) (*models.Message, error)
 	Update(*models.Message) error
 	GetAll() ([]models.Message, error)
-	Get(int) (*models.Message, error)
-	Delete(int) error
+	Get(int64) (*models.Message, error)
+	Delete(int64) error
 }
 type message struct {
 	db     *bun.DB
@@ -32,9 +32,8 @@ func NewMessage(db *bun.DB) Message {
 func (message *message) Create(input *models.Message) (*models.Message, error) {
 
 	person := database.Person{
-		FirstName:   input.FirstName,
-		LastName:    input.LastName,
-		ReferenceId: global.REFERENCES_ANONYMOUS,
+		FirstName: input.FirstName,
+		LastName:  input.LastName,
 	}
 
 	_, err := message.db.NewInsert().Model(&person).Exec(message.ctx)
@@ -100,7 +99,7 @@ func (message *message) GetAll() ([]models.Message, error) {
 	return messagesArray, err
 }
 
-func (message *message) Get(id int) (*models.Message, error) {
+func (message *message) Get(id int64) (*models.Message, error) {
 
 	responseMessage := models.Message{ID: id}
 
@@ -111,7 +110,7 @@ func (message *message) Get(id int) (*models.Message, error) {
 	return &responseMessage, err
 }
 
-func (message *message) Delete(id int) error {
+func (message *message) Delete(id int64) error {
 	responseMessage := models.Message{ID: id}
 
 	_, err := message.db.NewDelete().Model(responseMessage).WherePK().Exec(message.ctx)

@@ -1,7 +1,7 @@
 package models
 
 type Message struct {
-	ID          int    `json:"id"`
+	ID          int64  `json:"id"`
 	FirstName   string `json:"firstName"`
 	LastName    string `json:"lastName"`
 	Email       string `json:"email"`

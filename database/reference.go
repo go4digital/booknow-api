@@ -4,8 +4,8 @@ import "github.com/uptrace/bun"
 
 type Reference struct {
 	bun.BaseModel `bun:"reference"`
-	Id            int    `bun:",unique,notnull"`
+	Id            int64  `bun:",pk,unique,notnull"`
 	Description   string `bun:",notnull,type:varchar(45)"`
-	TypeId        int
+	TypeId        int64
 	Type          *Type `bun:"rel:has-one"`
 }

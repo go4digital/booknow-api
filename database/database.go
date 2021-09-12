@@ -33,18 +33,27 @@ func Connect() *bun.DB {
 func CreateSchema(db *bun.DB) error {
 	var err error
 	ctx := context.Background()
+
+	db.RegisterModel((*PersonContact)(nil))
+	db.RegisterModel((*CompanyPerson)(nil))
+	db.RegisterModel((*CompanyContact)(nil))
+
 	models := []interface{}{
 		(*Type)(nil),
 		(*Reference)(nil),
-		(*Contact)(nil),
 		(*Person)(nil),
+		(*Contact)(nil),
 		(*PersonContact)(nil),
+		(*Company)(nil),
+		(*CompanyContact)(nil),
+		(*CompanyPerson)(nil),
 		(*Message)(nil),
 	}
 	for _, model := range models {
-		if _, err = db.NewCreateTable().Model(model).Exec(ctx); err != nil {
+		if _, err = db.NewCreateTable().Model(model).IfNotExists().Exec(ctx); err != nil {
 			return err
 		}
 	}
+
 	return err
 }

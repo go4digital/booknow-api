@@ -6,7 +6,7 @@ import (
 	"github.com/go4digital/booknow-api/models"
 )
 
-func (resolver *queryResolver) Message(ctx context.Context, id int) (*models.Message, error) {
+func (resolver *queryResolver) Message(ctx context.Context, id int64) (*models.Message, error) {
 
 	message, err := resolver.Service.GetMessage(id)
 

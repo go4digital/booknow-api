@@ -6,14 +6,14 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type Person struct {
-	bun.BaseModel `bun:"person"`
+type Company struct {
+	bun.BaseModel `bun:"company"`
 	Id            int64     `bun:",pk,unique,notnull"`
-	FirstName     string    `bun:",notnull,type:varchar(20)"`
-	LastName      string    `bun:",notnull,type:varchar(20)"`
+	Name          string    `bun:",notnull,type:varchar(50)"`
 	CreatedAt     time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	CreatedBy     int64
 	UpdatedAt     time.Time
 	UpdatedBy     int64
-	Contacts      []Contact `bun:"m2m:person_contact"`
+	Contacts      []*Contact `bun:"rel:has-many"`
+	Persons       []*Person  `bun:"rel:has-many"`
 }

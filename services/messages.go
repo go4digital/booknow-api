@@ -9,7 +9,7 @@ import (
 type Messages interface {
 	SaveMessage(*models.Message) (*models.Message, error)
 	GetAllMessages() ([]models.Message, error)
-	GetMessage(int) (*models.Message, error)
+	GetMessage(int64) (*models.Message, error)
 }
 
 type message struct {
@@ -45,7 +45,7 @@ func (service *message) GetAllMessages() ([]models.Message, error) {
 	return leads, err
 }
 
-func (service *message) GetMessage(id int) (*models.Message, error) {
+func (service *message) GetMessage(id int64) (*models.Message, error) {
 	lead, err := service.messageDao.Get(id)
 	if err != nil {
 		log.Error(err)

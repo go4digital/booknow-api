@@ -4,9 +4,9 @@ import "github.com/uptrace/bun"
 
 type PersonContact struct {
 	bun.BaseModel `bun:"person_contact"`
-	Id            int `bun:",unique,notnull"`
-	PersonId      int
-	Person        []*Person `bun:"rel:has-many"`
-	ContactId     int
-	Contact       []*Contact `bun:"rel:has-many"`
+	Id            int64 `bun:",pk,unique,notnull"`
+	PersonId      int64
+	Person        *Person `bun:"rel:has-one"`
+	ContactId     int64
+	Contact       *Contact `bun:"rel:has-one"`
 }
