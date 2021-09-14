@@ -6,17 +6,17 @@ import (
 	"github.com/go4digital/booknow-api/models"
 )
 
-type Messages interface {
+type IMessages interface {
 	SaveMessage(*models.Message) (*models.Message, error)
 	GetAllMessages() ([]models.Message, error)
 	GetMessage(int64) (*models.Message, error)
 }
 
 type message struct {
-	messageDao dao.Message
+	messageDao dao.IMessage
 }
 
-func NewMessage(messageDao dao.Message) Messages {
+func NewMessage(messageDao dao.IMessage) IMessages {
 	return &message{messageDao: messageDao}
 }
 
