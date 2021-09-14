@@ -95,42 +95,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Company.Email":
+	case "Company.email":
 		if e.complexity.Company.Email == nil {
 			break
 		}
 
 		return e.complexity.Company.Email(childComplexity), true
 
-	case "Company.Id":
+	case "Company.id":
 		if e.complexity.Company.Id == nil {
 			break
 		}
 
 		return e.complexity.Company.Id(childComplexity), true
 
-	case "Company.Mobile":
+	case "Company.mobile":
 		if e.complexity.Company.Mobile == nil {
 			break
 		}
 
 		return e.complexity.Company.Mobile(childComplexity), true
 
-	case "Company.Name":
+	case "Company.name":
 		if e.complexity.Company.Name == nil {
 			break
 		}
 
 		return e.complexity.Company.Name(childComplexity), true
 
-	case "Company.ResidentialAddress":
+	case "Company.residentialAddress":
 		if e.complexity.Company.ResidentialAddress == nil {
 			break
 		}
 
 		return e.complexity.Company.ResidentialAddress(childComplexity), true
 
-	case "Company.WebsiteAddress":
+	case "Company.websiteAddress":
 		if e.complexity.Company.WebsiteAddress == nil {
 			break
 		}
@@ -323,32 +323,32 @@ scalar Any
 }`, BuiltIn: false},
 	{Name: "schema/types/company.graphql", Input: `type Company
   @goModel(model: "github.com/go4digital/booknow-api/models.Company") {
-  Id: Int!
-  Name: String
-  Email: String
-  Mobile: String
-  ResidentialAddress: String
-  WebsiteAddress: String
+  id: Int!
+  name: String
+  email: String
+  mobile: String
+  residentialAddress: String
+  websiteAddress: String
 }
 
 input CompanyInput
   @goModel(model: "github.com/go4digital/booknow-api/models.Company") {
-  Name: String!
-  Email: String!
-  Mobile: String!
-  ResidentialAddress: String!
-  WebsiteAddress: String!
-  Facebook: String
-  LinkedIn: String
-  GitHub: String
-  Instagram: String
-  Whatsapp: String
-  Landline: String
-  ContactPersonFirstName: String!
-  ContactPersonLastName: String!
-  ContactPersonEmail: String!
-  ContactPersonPhone: String!
-  ContactPersonAddress: String
+  name: String!
+  email: String!
+  mobile: String!
+  residentialAddress: String!
+  websiteAddress: String!
+  facebook: String
+  linkedIn: String
+  gitHub: String
+  instagram: String
+  whatsapp: String
+  landline: String
+  contactPersonFirstName: String!
+  contactPersonLastName: String!
+  contactPersonEmail: String!
+  contactPersonPhone: String!
+  contactPersonAddress: String
 }
 `, BuiltIn: false},
 	{Name: "schema/types/message.graphql", Input: `type Message
@@ -370,6 +370,7 @@ input MessageInput
   phone: String!
   address: String!
   description: String!
+  companyId: Int!
 }
 `, BuiltIn: false},
 }
@@ -462,7 +463,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Company_Id(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
+func (ec *executionContext) _Company_id(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -497,7 +498,7 @@ func (ec *executionContext) _Company_Id(ctx context.Context, field graphql.Colle
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Company_Name(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
+func (ec *executionContext) _Company_name(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -529,7 +530,7 @@ func (ec *executionContext) _Company_Name(ctx context.Context, field graphql.Col
 	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Company_Email(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
+func (ec *executionContext) _Company_email(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -561,7 +562,7 @@ func (ec *executionContext) _Company_Email(ctx context.Context, field graphql.Co
 	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Company_Mobile(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
+func (ec *executionContext) _Company_mobile(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -593,7 +594,7 @@ func (ec *executionContext) _Company_Mobile(ctx context.Context, field graphql.C
 	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Company_ResidentialAddress(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
+func (ec *executionContext) _Company_residentialAddress(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -625,7 +626,7 @@ func (ec *executionContext) _Company_ResidentialAddress(ctx context.Context, fie
 	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Company_WebsiteAddress(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
+func (ec *executionContext) _Company_websiteAddress(ctx context.Context, field graphql.CollectedField, obj *models.Company) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2185,130 +2186,130 @@ func (ec *executionContext) unmarshalInputCompanyInput(ctx context.Context, obj 
 
 	for k, v := range asMap {
 		switch k {
-		case "Name":
+		case "name":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Name"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Email":
+		case "email":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Email"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
 			it.Email, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Mobile":
+		case "mobile":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Mobile"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("mobile"))
 			it.Mobile, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "ResidentialAddress":
+		case "residentialAddress":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ResidentialAddress"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("residentialAddress"))
 			it.ResidentialAddress, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "WebsiteAddress":
+		case "websiteAddress":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("WebsiteAddress"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("websiteAddress"))
 			it.WebsiteAddress, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Facebook":
+		case "facebook":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Facebook"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("facebook"))
 			it.Facebook, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "LinkedIn":
+		case "linkedIn":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("LinkedIn"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("linkedIn"))
 			it.LinkedIn, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "GitHub":
+		case "gitHub":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("GitHub"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gitHub"))
 			it.GitHub, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Instagram":
+		case "instagram":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Instagram"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("instagram"))
 			it.Instagram, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Whatsapp":
+		case "whatsapp":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Whatsapp"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("whatsapp"))
 			it.Whatsapp, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "Landline":
+		case "landline":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Landline"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("landline"))
 			it.Landline, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "ContactPersonFirstName":
+		case "contactPersonFirstName":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ContactPersonFirstName"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contactPersonFirstName"))
 			it.ContactPersonFirstName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "ContactPersonLastName":
+		case "contactPersonLastName":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ContactPersonLastName"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contactPersonLastName"))
 			it.ContactPersonLastName, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "ContactPersonEmail":
+		case "contactPersonEmail":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ContactPersonEmail"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contactPersonEmail"))
 			it.ContactPersonEmail, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "ContactPersonPhone":
+		case "contactPersonPhone":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ContactPersonPhone"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contactPersonPhone"))
 			it.ContactPersonPhone, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "ContactPersonAddress":
+		case "contactPersonAddress":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ContactPersonAddress"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contactPersonAddress"))
 			it.ContactPersonAddress, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -2373,6 +2374,14 @@ func (ec *executionContext) unmarshalInputMessageInput(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
+		case "companyId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companyId"))
+			it.CompanyId, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2398,21 +2407,21 @@ func (ec *executionContext) _Company(ctx context.Context, sel ast.SelectionSet, 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Company")
-		case "Id":
-			out.Values[i] = ec._Company_Id(ctx, field, obj)
+		case "id":
+			out.Values[i] = ec._Company_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Name":
-			out.Values[i] = ec._Company_Name(ctx, field, obj)
-		case "Email":
-			out.Values[i] = ec._Company_Email(ctx, field, obj)
-		case "Mobile":
-			out.Values[i] = ec._Company_Mobile(ctx, field, obj)
-		case "ResidentialAddress":
-			out.Values[i] = ec._Company_ResidentialAddress(ctx, field, obj)
-		case "WebsiteAddress":
-			out.Values[i] = ec._Company_WebsiteAddress(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._Company_name(ctx, field, obj)
+		case "email":
+			out.Values[i] = ec._Company_email(ctx, field, obj)
+		case "mobile":
+			out.Values[i] = ec._Company_mobile(ctx, field, obj)
+		case "residentialAddress":
+			out.Values[i] = ec._Company_residentialAddress(ctx, field, obj)
+		case "websiteAddress":
+			out.Values[i] = ec._Company_websiteAddress(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -39,6 +39,11 @@ func (message *message) Create(input *models.Message) (*models.Message, error) {
 	_, err := message.db.NewInsert().Model(&person).Exec(message.ctx)
 	checkNPrintError(err)
 
+	companyPersonMapping := database.CompanyPerson{CompanyId: input.CompanyId, PersonId: person.Id}
+
+	_, err = message.db.NewInsert().Model(&companyPersonMapping).Exec(message.ctx)
+	checkNPrintError(err)
+
 	contacts := []*database.Contact{
 		{Description: input.Email, ReferenceId: global.REFERENCES_EMAIL},
 		{Description: input.Phone, ReferenceId: global.REFERENCES_MOBILE},

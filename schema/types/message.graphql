@@ -17,4 +17,5 @@ input MessageInput
   phone: String!
   address: String!
   description: String!
+  companyId: Int!
 }

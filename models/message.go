@@ -8,5 +8,5 @@ type Message struct {
 	Phone       string `json:"phone"`
 	Description string `json:"description"`
 	Address     string `json:"address"`
-	CompanyId   int64
+	CompanyId   int64  `json:"companyId"`
 }

@@ -1,29 +1,29 @@
 type Company
   @goModel(model: "github.com/go4digital/booknow-api/models.Company") {
-  Id: Int!
-  Name: String
-  Email: String
-  Mobile: String
-  ResidentialAddress: String
-  WebsiteAddress: String
+  id: Int!
+  name: String
+  email: String
+  mobile: String
+  residentialAddress: String
+  websiteAddress: String
 }
 
 input CompanyInput
   @goModel(model: "github.com/go4digital/booknow-api/models.Company") {
-  Name: String!
-  Email: String!
-  Mobile: String!
-  ResidentialAddress: String!
-  WebsiteAddress: String!
-  Facebook: String
-  LinkedIn: String
-  GitHub: String
-  Instagram: String
-  Whatsapp: String
-  Landline: String
-  ContactPersonFirstName: String!
-  ContactPersonLastName: String!
-  ContactPersonEmail: String!
-  ContactPersonPhone: String!
-  ContactPersonAddress: String
+  name: String!
+  email: String!
+  mobile: String!
+  residentialAddress: String!
+  websiteAddress: String!
+  facebook: String
+  linkedIn: String
+  gitHub: String
+  instagram: String
+  whatsapp: String
+  landline: String
+  contactPersonFirstName: String!
+  contactPersonLastName: String!
+  contactPersonEmail: String!
+  contactPersonPhone: String!
+  contactPersonAddress: String
 }
