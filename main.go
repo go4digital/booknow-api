@@ -32,12 +32,12 @@ func init() {
 func main() {
 	defer db.Close()
 	messageDao := dao.NewMessage(db)
-
-	messagesService := services.NewMessage(messageDao)
+	companyDao := dao.NewCompany(db)
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			Service: messagesService,
+			MessageService: services.NewMessage(messageDao),
+			CompanyService: services.NewCompany(companyDao),
 		},
 		Directives: generated.DirectiveRoot{},
 		Complexity: generated.ComplexityRoot{}}))

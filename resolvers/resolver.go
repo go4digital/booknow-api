@@ -1,6 +1,6 @@
 package resolvers
 
-//go:generate go run github.com/99designs/gqlgen --verbose
+//go:generate go run github.com/99designs/gqlgen generate
 
 import (
 	"github.com/go4digital/booknow-api/graph/generated"
@@ -8,16 +8,15 @@ import (
 )
 
 type Resolver struct {
-	Service services.Messages
+	MessageService services.IMessages
+	CompanyService services.ICompany
 }
 
-func (resolver *Resolver) Mutation() generated.MutationResolver {
-	return &mutationResolver{resolver}
-}
-func (resolver *Resolver) Query() generated.QueryResolver {
-	return &queryResolver{resolver}
-}
+// Mutation returns generated.MutationResolver implementation.
+func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
-
 type queryResolver struct{ *Resolver }

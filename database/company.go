@@ -8,7 +8,7 @@ import (
 
 type Company struct {
 	bun.BaseModel `bun:"company"`
-	Id            int64     `bun:",pk,unique,notnull"`
+	Id            int64     `bun:",unique,notnull"`
 	Name          string    `bun:",notnull,type:varchar(50)"`
 	CreatedAt     time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	CreatedBy     int64

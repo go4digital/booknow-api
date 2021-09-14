@@ -8,7 +8,7 @@ import (
 
 type Message struct {
 	bun.BaseModel `bun:"message"`
-	Id            int64  `bun:",pk,unique,notnull"`
+	Id            int64  `bun:",unique,notnull"`
 	Description   string `bun:",notnull,type:varchar(250)"`
 	FromPersonId  int64
 	FromPerson    *Person `bun:"rel:has-one,join:from_person_id=id"`

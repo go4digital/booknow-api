@@ -6,7 +6,7 @@ import (
 
 type CompanyContact struct {
 	bun.BaseModel `bun:"company_contact"`
-	Id            int64 `bun:",pk,unique,notnull"`
+	Id            int64 `bun:",unique,notnull"`
 	CompanyId     int64
 	Company       *Company `bun:"rel:has-one"`
 	ContactId     int64

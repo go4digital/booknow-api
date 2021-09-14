@@ -1,7 +1,7 @@
-type Query {
+extend type Query {
   messages: [Message!]!
 }
 
-type Mutation {
+extend type Mutation {
   saveMessage(input: MessageInput!): Message!
 }

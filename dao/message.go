@@ -10,7 +10,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type Message interface {
+type IMessage interface {
 	Create(*models.Message) (*models.Message, error)
 	Update(*models.Message) error
 	GetAll() ([]models.Message, error)
@@ -23,7 +23,7 @@ type message struct {
 	cancel context.CancelFunc
 }
 
-func NewMessage(db *bun.DB) Message {
+func NewMessage(db *bun.DB) IMessage {
 	parentCtx := context.Background()
 	ctx, cancel := context.WithCancel(parentCtx)
 	return &message{db: db, ctx: ctx, cancel: cancel}
@@ -41,8 +41,8 @@ func (message *message) Create(input *models.Message) (*models.Message, error) {
 
 	contacts := []*database.Contact{
 		{Description: input.Email, ReferenceId: global.REFERENCES_EMAIL},
-		{Description: input.Phone, ReferenceId: global.REFERENCES_PHONE},
-		{Description: input.Address, ReferenceId: global.REFERENCES_ADDRESS},
+		{Description: input.Phone, ReferenceId: global.REFERENCES_MOBILE},
+		{Description: input.Address, ReferenceId: global.REFERENCES_RESIDENTIALADDRESS},
 	}
 	_, err = message.db.NewInsert().Model(&contacts).Exec(message.ctx)
 	checkNPrintError(err)
@@ -59,14 +59,14 @@ func (message *message) Create(input *models.Message) (*models.Message, error) {
 	responseMessage := database.Message{
 		Description:  input.Description,
 		FromPersonId: person.Id,
-		ToPersonId:   global.BLOSSOMCLEAN_TENANT_ID,
+		ToPersonId:   input.CompanyId,
 		ReferenceId:  global.REFERENCES_ENQUIRY,
 		CreatedBy:    global.REFERENCES_ANONYMOUS,
 	}
 	_, err = message.db.NewInsert().Model(&responseMessage).Exec(message.ctx)
 	checkNPrintError(err)
 
-	input.ID = responseMessage.Id
+	input.Id = responseMessage.Id
 
 	return input, err
 }
@@ -74,7 +74,7 @@ func (message *message) Create(input *models.Message) (*models.Message, error) {
 func (message *message) Update(input *models.Message) error {
 
 	responseMessage := models.Message{
-		ID:          input.ID,
+		Id:          input.Id,
 		FirstName:   input.FirstName,
 		LastName:    input.LastName,
 		Email:       input.Email,
@@ -101,7 +101,7 @@ func (message *message) GetAll() ([]models.Message, error) {
 
 func (message *message) Get(id int64) (*models.Message, error) {
 
-	responseMessage := models.Message{ID: id}
+	responseMessage := models.Message{Id: id}
 
 	err := message.db.NewSelect().Model(responseMessage).WherePK().Scan(message.ctx, &message)
 
@@ -111,7 +111,7 @@ func (message *message) Get(id int64) (*models.Message, error) {
 }
 
 func (message *message) Delete(id int64) error {
-	responseMessage := models.Message{ID: id}
+	responseMessage := models.Message{Id: id}
 
 	_, err := message.db.NewDelete().Model(responseMessage).WherePK().Exec(message.ctx)
 

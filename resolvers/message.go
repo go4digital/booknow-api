@@ -8,20 +8,20 @@ import (
 
 func (resolver *queryResolver) Message(ctx context.Context, id int64) (*models.Message, error) {
 
-	message, err := resolver.Service.GetMessage(id)
+	message, err := resolver.MessageService.GetMessage(id)
 
 	return message, err
 }
 func (resolver *queryResolver) Messages(ctx context.Context) ([]models.Message, error) {
 
-	messages, err := resolver.Service.GetAllMessages()
+	messages, err := resolver.MessageService.GetAllMessages()
 
 	return messages, err
 }
 
 func (resolver *mutationResolver) SaveMessage(ctx context.Context, message models.Message) (*models.Message, error) {
 
-	messages, err := resolver.Service.SaveMessage(&message)
+	messages, err := resolver.MessageService.SaveMessage(&message)
 	if err != nil {
 		return nil, err
 	}

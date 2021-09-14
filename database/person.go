@@ -8,7 +8,7 @@ import (
 
 type Person struct {
 	bun.BaseModel `bun:"person"`
-	Id            int64     `bun:",pk,unique,notnull"`
+	Id            int64     `bun:",unique,notnull"`
 	FirstName     string    `bun:",notnull,type:varchar(20)"`
 	LastName      string    `bun:",notnull,type:varchar(20)"`
 	CreatedAt     time.Time `bun:",nullzero,notnull,default:current_timestamp"`
