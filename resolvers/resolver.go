@@ -8,8 +8,9 @@ import (
 )
 
 type Resolver struct {
-	MessageService services.IMessages
-	CompanyService services.ICompany
+	MessageService    services.IMessages
+	CompanyService    services.ICompany
+	FileUploadService services.IFileUpload
 }
 
 // Mutation returns generated.MutationResolver implementation.

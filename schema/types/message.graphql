@@ -18,4 +18,5 @@ input MessageInput
   address: String!
   description: String!
   companyId: Int!
+  files: [Upload!]!
 }

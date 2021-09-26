@@ -9,3 +9,6 @@ scalar Map
 
 # resolves to interface{}
 scalar Any
+
+# resolves to Upload struct
+scalar Upload

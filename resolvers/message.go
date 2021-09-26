@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go4digital/booknow-api/models"
 )
@@ -20,6 +21,10 @@ func (resolver *queryResolver) Messages(ctx context.Context) ([]models.Message, 
 }
 
 func (resolver *mutationResolver) SaveMessage(ctx context.Context, message models.Message) (*models.Message, error) {
+
+	folder := fmt.Sprintf("%v_%v", message.FirstName, message.Email)
+
+	resolver.FileUploadService.Upload(folder, message.Files)
 
 	messages, err := resolver.MessageService.SaveMessage(&message)
 	if err != nil {

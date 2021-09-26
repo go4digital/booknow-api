@@ -36,8 +36,9 @@ func main() {
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			MessageService: services.NewMessage(messageDao),
-			CompanyService: services.NewCompany(companyDao),
+			MessageService:    services.NewMessage(messageDao),
+			CompanyService:    services.NewCompany(companyDao),
+			FileUploadService: services.NewFileUpload(),
 		},
 		Directives: generated.DirectiveRoot{},
 		Complexity: generated.ComplexityRoot{}}))

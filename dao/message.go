@@ -66,7 +66,7 @@ func (message *message) Create(input *models.Message) (*models.Message, error) {
 		FromPersonId: person.Id,
 		ToPersonId:   input.CompanyId,
 		ReferenceId:  global.REFERENCES_ENQUIRY,
-		CreatedBy:    global.REFERENCES_ANONYMOUS,
+		CreatedBy:    input.CompanyId,
 	}
 	_, err = message.db.NewInsert().Model(&responseMessage).Exec(message.ctx)
 	checkNPrintError(err)
