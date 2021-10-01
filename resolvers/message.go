@@ -33,3 +33,13 @@ func (resolver *mutationResolver) SaveMessage(ctx context.Context, message model
 
 	return messages, nil
 }
+
+func (resolver *mutationResolver) SaveEnquiry(ctx context.Context, message models.Message) (*models.Message, error) {
+
+	messages, err := resolver.MessageService.SaveMessage(&message)
+	if err != nil {
+		return nil, err
+	}
+
+	return messages, nil
+}

@@ -64,6 +64,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateCompany func(childComplexity int, input models.Company) int
+		SaveEnquiry   func(childComplexity int, input models.Message) int
 		SaveMessage   func(childComplexity int, input models.Message) int
 	}
 
@@ -75,6 +76,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateCompany(ctx context.Context, input models.Company) (*models.Company, error)
 	SaveMessage(ctx context.Context, input models.Message) (*models.Message, error)
+	SaveEnquiry(ctx context.Context, input models.Message) (*models.Message, error)
 }
 type QueryResolver interface {
 	Messages(ctx context.Context) ([]models.Message, error)
@@ -198,6 +200,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateCompany(childComplexity, args["input"].(models.Company)), true
 
+	case "Mutation.saveEnquiry":
+		if e.complexity.Mutation.SaveEnquiry == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_saveEnquiry_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SaveEnquiry(childComplexity, args["input"].(models.Message)), true
+
 	case "Mutation.saveMessage":
 		if e.complexity.Mutation.SaveMessage == nil {
 			break
@@ -303,6 +317,7 @@ directive @goField(forceResolver: Boolean, name: String) on INPUT_FIELD_DEFINITI
 
 extend type Mutation {
   saveMessage(input: MessageInput!): Message!
+  saveEnquiry(input: EnquiryInput!): Message!
 }
 `, BuiltIn: false},
 	{Name: "schema/scalars.graphql", Input: `# gqlgen supports some custom scalars out of the box
@@ -376,6 +391,17 @@ input MessageInput
   companyId: Int!
   files: [Upload!]!
 }
+
+input EnquiryInput
+  @goModel(model: "github.com/go4digital/booknow-api/models.Message") {
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  address: String!
+  description: String!
+  companyId: Int!
+}
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -391,6 +417,21 @@ func (ec *executionContext) field_Mutation_createCompany_args(ctx context.Contex
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCompanyInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐCompany(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_saveEnquiry_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.Message
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNEnquiryInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐMessage(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -975,6 +1016,48 @@ func (ec *executionContext) _Mutation_saveMessage(ctx context.Context, field gra
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().SaveMessage(rctx, args["input"].(models.Message))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Message)
+	fc.Result = res
+	return ec.marshalNMessage2ᚖgithubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_saveEnquiry(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_saveEnquiry_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SaveEnquiry(rctx, args["input"].(models.Message))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2362,6 +2445,77 @@ func (ec *executionContext) unmarshalInputCompanyInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEnquiryInput(ctx context.Context, obj interface{}) (models.Message, error) {
+	var it models.Message
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "firstName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
+			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lastName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
+			it.LastName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "phone":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			it.Address, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			it.Description, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "companyId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companyId"))
+			it.CompanyId, err = ec.unmarshalNInt2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputMessageInput(ctx context.Context, obj interface{}) (models.Message, error) {
 	var it models.Message
 	asMap := map[string]interface{}{}
@@ -2565,6 +2719,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "saveMessage":
 			out.Values[i] = ec._Mutation_saveMessage(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "saveEnquiry":
+			out.Values[i] = ec._Mutation_saveEnquiry(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2904,6 +3063,11 @@ func (ec *executionContext) marshalNCompany2ᚖgithubᚗcomᚋgo4digitalᚋbookn
 
 func (ec *executionContext) unmarshalNCompanyInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐCompany(ctx context.Context, v interface{}) (models.Company, error) {
 	res, err := ec.unmarshalInputCompanyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNEnquiryInput2githubᚗcomᚋgo4digitalᚋbooknowᚑapiᚋmodelsᚐMessage(ctx context.Context, v interface{}) (models.Message, error) {
+	res, err := ec.unmarshalInputEnquiryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

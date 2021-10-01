@@ -14,6 +14,7 @@ import (
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/option"
 )
 
 type IFileUpload interface {
@@ -30,7 +31,7 @@ func (service *fileupload) Upload(folder string, files []graphql.Upload) {
 	// Step 1: Get the Google Drive service Client
 	client := getClient("google_service_account_key.json")
 
-	driveService, err := drive.New(client)
+	driveService, err := drive.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Unable to retrieve drive Client %v", err)
 	}
@@ -81,6 +82,10 @@ func createDir(service *drive.Service, name string, parentId string) (*drive.Fil
 		MimeType: "application/vnd.google-apps.folder",
 		Parents:  []string{parentId},
 	}
+
+	// folders, err := service.Files.List().Do()
+
+	// fmt.Printf("%+v\n", folders)
 
 	file, err := service.Files.Create(d).Do()
 

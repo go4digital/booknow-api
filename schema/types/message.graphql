@@ -20,3 +20,14 @@ input MessageInput
   companyId: Int!
   files: [Upload!]!
 }
+
+input EnquiryInput
+  @goModel(model: "github.com/go4digital/booknow-api/models.Message") {
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  address: String!
+  description: String!
+  companyId: Int!
+}
