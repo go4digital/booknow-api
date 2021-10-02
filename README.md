@@ -22,6 +22,9 @@ Booking management system GraphQL API
    ```
 5. **Start the magic by running the following command**
    - `go run main.go`
+6. Any update in .graphql file will require to regenerate gqlgen code, run below command
+   - `go get github.com/99designs/gqlgen/cmd@v0.14.0`
+   - `go run github.com/99designs/gqlgen generate`
 
 # Sample Queries
 
@@ -104,7 +107,7 @@ mutation {
 8. After that login into your google drive and create a new folder where you want to upload files.
 9. Right click on the new folder and share it with service account email id, email can we found inside downloaded json.
 10. Doulbe click on newly created folder and copy the folder id from the url.
-11. Replace the GOOGLE_DRIVE_FOLDER_ID which is inside constants/common.go
+11. Add the GOOGLE_DRIVE_FOLDER_ID in .env file
 12. After following all the steps, file upload should work fine.
 13. All the code related to google drive file upload is in services/fileUpload.go file.
 

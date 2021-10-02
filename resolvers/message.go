@@ -24,17 +24,9 @@ func (resolver *mutationResolver) SaveMessage(ctx context.Context, message model
 
 	folder := fmt.Sprintf("%v_%v", message.FirstName, message.Email)
 
-	resolver.FileUploadService.Upload(folder, message.Files)
-
-	messages, err := resolver.MessageService.SaveMessage(&message)
-	if err != nil {
-		return nil, err
+	if message.Files != nil {
+		resolver.FileUploadService.Upload(folder, message.Files)
 	}
-
-	return messages, nil
-}
-
-func (resolver *mutationResolver) SaveEnquiry(ctx context.Context, message models.Message) (*models.Message, error) {
 
 	messages, err := resolver.MessageService.SaveMessage(&message)
 	if err != nil {

@@ -8,9 +8,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/go4digital/booknow-api/constants"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/drive/v3"
@@ -36,7 +36,7 @@ func (service *fileupload) Upload(folder string, files []graphql.Upload) {
 		log.Fatalf("Unable to retrieve drive Client %v", err)
 	}
 	// Step 2. Create the directory
-	dir, err := createDir(driveService, folder, constants.GOOGLE_DRIVE_FOLDER_ID)
+	dir, err := createDir(driveService, folder, os.Getenv("GOOGLE_DRIVE_FOLDER_ID"))
 
 	if err != nil {
 		panic(fmt.Sprintf("Could not create dir: %v\n", err))

@@ -4,5 +4,4 @@ extend type Query {
 
 extend type Mutation {
   saveMessage(input: MessageInput!): Message!
-  saveEnquiry(input: EnquiryInput!): Message!
 }
