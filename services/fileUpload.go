@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/99designs/gqlgen/graphql"
 	"golang.org/x/oauth2/google"
@@ -18,7 +17,7 @@ import (
 )
 
 type IFileUpload interface {
-	Upload(string, []graphql.Upload)
+	Upload(string, string, []graphql.Upload)
 }
 
 type fileupload struct{}
@@ -27,7 +26,7 @@ func NewFileUpload() IFileUpload {
 	return &fileupload{}
 }
 
-func (service *fileupload) Upload(folder string, files []graphql.Upload) {
+func (service *fileupload) Upload(companyFolderId string, personFolder string, files []graphql.Upload) {
 	// Step 1: Get the Google Drive service Client
 	client := getClient("google_service_account_key.json")
 
@@ -36,7 +35,7 @@ func (service *fileupload) Upload(folder string, files []graphql.Upload) {
 		log.Fatalf("Unable to retrieve drive Client %v", err)
 	}
 	// Step 2. Create the directory
-	dir, err := createDir(driveService, folder, os.Getenv("GOOGLE_DRIVE_FOLDER_ID"))
+	dir, err := createDir(driveService, companyFolderId, personFolder)
 
 	if err != nil {
 		panic(fmt.Sprintf("Could not create dir: %v\n", err))
@@ -76,11 +75,11 @@ func getClient(secretFile string) *http.Client {
 	return client
 }
 
-func createDir(service *drive.Service, name string, parentId string) (*drive.File, error) {
+func createDir(service *drive.Service, companyFolderId string, personFolder string) (*drive.File, error) {
 	d := &drive.File{
-		Name:     name,
+		Name:     personFolder,
 		MimeType: "application/vnd.google-apps.folder",
-		Parents:  []string{parentId},
+		Parents:  []string{companyFolderId},
 	}
 
 	// folders, err := service.Files.List().Do()

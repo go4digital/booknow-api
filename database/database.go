@@ -45,8 +45,11 @@ func CreateSchema(db *bun.DB) error {
 		(*Contact)(nil),
 		(*PersonContact)(nil),
 		(*Company)(nil),
+		(*Document)(nil),
 		(*CompanyContact)(nil),
 		(*CompanyPerson)(nil),
+		(*CompanyDocument)(nil),
+		(*PersonDocument)(nil),
 		(*Message)(nil),
 	}
 	for _, model := range models {

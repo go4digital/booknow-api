@@ -22,10 +22,10 @@ func (resolver *queryResolver) Messages(ctx context.Context) ([]models.Message, 
 
 func (resolver *mutationResolver) SaveMessage(ctx context.Context, message models.Message) (*models.Message, error) {
 
-	folder := fmt.Sprintf("%v_%v", message.FirstName, message.Email)
+	personfolder := fmt.Sprintf("Subcontractor_%v_%v", message.FirstName, message.Email)
 
 	if message.Files != nil {
-		resolver.FileUploadService.Upload(folder, message.Files)
+		resolver.FileUploadService.Upload(message.CompanyFolderId, personfolder, message.Files)
 	}
 
 	messages, err := resolver.MessageService.SaveMessage(&message)

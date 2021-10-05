@@ -8,7 +8,9 @@ INSERT INTO public.type
 	(1, 'Contact'),
 	(2, 'Social'),
 	(3, 'Person'),
-	(4, 'Message')
+	(4, 'Message'),
+	(5, 'Document'),
+	(6, 'Folder')
 
 /*References*/
 INSERT INTO public.reference
@@ -37,4 +39,13 @@ INSERT INTO public.reference
 	(21, 'Suggestion', 4),
 	(22, 'Introduction', 4),
 	(23, 'Owner', 3)
+	(24, 'Police Check', 5),
+	(25, 'Working with children check', 5),
+	(26, 'Visa', 5),
+	(27, 'Student Id', 5),
+	(28, 'Resume', 5),
+	(29, 'Passport first page', 5),
+	(30, 'Passport last page', 5)
+	(31, 'ABN', 1),
+	(32, 'Documents', 6)
 

@@ -375,6 +375,7 @@ input MessageInput
   description: String!
   companyId: Int!
   files: [Upload]
+  companyFolderId: String
 }
 `, BuiltIn: false},
 }
@@ -2432,6 +2433,14 @@ func (ec *executionContext) unmarshalInputMessageInput(ctx context.Context, obj 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("files"))
 			it.Files, err = ec.unmarshalOUpload2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "companyFolderId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("companyFolderId"))
+			it.CompanyFolderId, err = ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
