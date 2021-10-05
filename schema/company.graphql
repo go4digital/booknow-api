@@ -1,0 +1,3 @@
+type Mutation {
+  createCompany(input: CompanyInput!): Company!
+}

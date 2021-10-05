@@ -1,15 +1,17 @@
 package database
 
 import (
+	"context"
+	"database/sql"
 	"os"
 
-	"github.com/go-pg/pg/v10"
-	"github.com/go-pg/pg/v10/orm"
 	log "github.com/go4digital/booknow-api/logger"
-	"github.com/go4digital/booknow-api/models"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 )
 
-func Connect() *pg.DB {
+func Connect() *bun.DB {
 
 	connectionString := os.Getenv("CONNECTION_STRING")
 
@@ -17,11 +19,9 @@ func Connect() *pg.DB {
 		log.Warn("Empty Connection String!")
 	}
 
-	opts, err := pg.ParseURL(connectionString)
-	if err != nil {
-		log.Error(err)
-	}
-	var db *pg.DB = pg.Connect(opts)
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(connectionString)))
+
+	db := bun.NewDB(sqldb, pgdialect.New())
 
 	if db == nil {
 		panic("Database connection failed")
@@ -30,20 +30,33 @@ func Connect() *pg.DB {
 	return db
 }
 
-func CreateSchema(db *pg.DB) error {
-	opts := &orm.CreateTableOptions{
-		IfNotExists: true,
-	}
-	createLeadTable(opts, db)
-	return nil
-}
+func CreateSchema(db *bun.DB) error {
+	var err error
+	ctx := context.Background()
 
-func createLeadTable(opts *orm.CreateTableOptions, db *pg.DB) error {
-	createError := db.Model(&models.Lead{}).CreateTable(opts)
-	if createError != nil {
-		log.Error(createError)
-		return createError
+	db.RegisterModel((*PersonContact)(nil))
+	db.RegisterModel((*CompanyPerson)(nil))
+	db.RegisterModel((*CompanyContact)(nil))
+
+	models := []interface{}{
+		(*Type)(nil),
+		(*Reference)(nil),
+		(*Person)(nil),
+		(*Contact)(nil),
+		(*PersonContact)(nil),
+		(*Company)(nil),
+		(*Document)(nil),
+		(*CompanyContact)(nil),
+		(*CompanyPerson)(nil),
+		(*CompanyDocument)(nil),
+		(*PersonDocument)(nil),
+		(*Message)(nil),
 	}
-	log.Info("Lead table created")
-	return nil
+	for _, model := range models {
+		if _, err = db.NewCreateTable().Model(model).IfNotExists().Exec(ctx); err != nil {
+			return err
+		}
+	}
+
+	return err
 }

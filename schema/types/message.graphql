@@ -1,0 +1,23 @@
+type Message
+  @goModel(model: "github.com/go4digital/booknow-api/models.Message") {
+  id: Int!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  address: String!
+  description: String!
+}
+
+input MessageInput
+  @goModel(model: "github.com/go4digital/booknow-api/models.Message") {
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  address: String!
+  description: String!
+  companyId: Int!
+  files: [Upload]
+  companyFolderId: String
+}

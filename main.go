@@ -7,7 +7,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/go-pg/pg/v10"
 	"github.com/go4digital/booknow-api/dao"
 	"github.com/go4digital/booknow-api/database"
 	"github.com/go4digital/booknow-api/global"
@@ -16,9 +15,10 @@ import (
 	"github.com/go4digital/booknow-api/middleware"
 	"github.com/go4digital/booknow-api/resolvers"
 	"github.com/go4digital/booknow-api/services"
+	"github.com/uptrace/bun"
 )
 
-var db *pg.DB
+var db *bun.DB
 var port string
 
 func init() {
@@ -31,13 +31,14 @@ func init() {
 
 func main() {
 	defer db.Close()
-	leadDao := dao.NewLeads(db)
-
-	leadsService := services.NewLeads(leadDao)
+	messageDao := dao.NewMessage(db)
+	companyDao := dao.NewCompany(db)
 
 	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			Service: leadsService,
+			MessageService:    services.NewMessage(messageDao),
+			CompanyService:    services.NewCompany(companyDao),
+			FileUploadService: services.NewFileUpload(),
 		},
 		Directives: generated.DirectiveRoot{},
 		Complexity: generated.ComplexityRoot{}}))

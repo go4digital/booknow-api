@@ -20,3 +20,6 @@ logs/*
 
 # env file
 .env
+
+# google_service_account_key file
+*.json
